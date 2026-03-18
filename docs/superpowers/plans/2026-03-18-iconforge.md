@@ -125,6 +125,14 @@ def load_and_validate_image(path: pathlib.Path) -> Image.Image:
         import warnings
         warnings.warn(f"Source image is {w}×{h}, 1024×1024 recommended for best quality")
     return img
+
+
+def has_transparency(image: Image.Image) -> bool:
+    """Check if image has an alpha channel with any non-opaque pixels."""
+    if image.mode != "RGBA":
+        return False
+    alpha = image.getchannel("A")
+    return alpha.getextrema()[0] < 255
 ```
 
 `src/iconforge/cli.py`:
@@ -244,7 +252,7 @@ import warnings
 import pytest
 from PIL import Image
 
-from iconforge.core import IconforgeError, load_and_validate_image, resize_image
+from iconforge.core import IconforgeError, has_transparency, load_and_validate_image, resize_image
 
 
 class TestLoadAndValidateImage:
@@ -283,12 +291,26 @@ class TestResizeImage:
     def test_preserves_rgba(self, source_image: Image.Image) -> None:
         result = resize_image(source_image, 128)
         assert result.mode == "RGBA"
+
+
+class TestHasTransparency:
+    def test_opaque_image(self) -> None:
+        img = Image.new("RGBA", (10, 10), (255, 0, 0, 255))
+        assert has_transparency(img) is False
+
+    def test_transparent_image(self) -> None:
+        img = Image.new("RGBA", (10, 10), (255, 0, 0, 128))
+        assert has_transparency(img) is True
+
+    def test_rgb_image(self) -> None:
+        img = Image.new("RGB", (10, 10), (255, 0, 0))
+        assert has_transparency(img) is False
 ```
 
 - [ ] **Step 3: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_core.py -v`
-Expected: all 7 tests PASS (implementation already written in Task 1)
+Expected: all 10 tests PASS (implementation already written in Task 1)
 
 - [ ] **Step 4: Commit**
 
@@ -358,6 +380,16 @@ class TestIOSGenerate:
         assert icon_1024.exists()
         img = Image.open(icon_1024)
         assert img.size == (1024, 1024)
+
+    def test_warns_on_transparency(self, tmp_path: pathlib.Path) -> None:
+        import warnings
+        # Image with semi-transparent pixels
+        img = Image.new("RGBA", (1024, 1024), (255, 0, 0, 128))
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            generate(img, tmp_path, {})
+            assert len(w) == 1
+            assert "transparency" in str(w[0].message).lower()
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -379,7 +411,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.core import resize_image
+from iconforge.core import has_transparency, resize_image
 
 # (name, pt_size, scale) tuples
 SIZES: list[tuple[str, float, int]] = [
@@ -403,6 +435,11 @@ SIZES: list[tuple[str, float, int]] = [
 
 def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
     """Generate iOS app icon set."""
+    import warnings
+
+    if has_transparency(source):
+        warnings.warn("Source image has transparency. iOS does not support transparent app icons.")
+
     appiconset = output_dir / "AppIcon.appiconset"
     appiconset.mkdir(parents=True, exist_ok=True)
 
@@ -962,6 +999,14 @@ class TestWebGenerate:
         img = Image.open(tmp_path / "apple-touch-icon.png")
         assert img.size == (180, 180)
 
+    def test_creates_tile_pngs(self, source_image: Image.Image, tmp_path: pathlib.Path) -> None:
+        generate(source_image, tmp_path, {})
+        for size in [70, 150, 310]:
+            tile = tmp_path / f"icon-{size}.png"
+            assert tile.exists()
+            img = Image.open(tile)
+            assert img.size == (size, size)
+
     def test_creates_manifest_json(self, source_image: Image.Image, tmp_path: pathlib.Path) -> None:
         generate(source_image, tmp_path, {})
         manifest = json.loads((tmp_path / "manifest.json").read_text())
@@ -983,7 +1028,7 @@ class TestWebGenerate:
 
     def test_returns_all_files(self, source_image: Image.Image, tmp_path: pathlib.Path) -> None:
         files = generate(source_image, tmp_path, {})
-        assert len(files) == 7  # favicon.ico, 3 PNGs, manifest, browserconfig, head-snippet
+        assert len(files) == 10  # favicon.ico, 3 PNGs, 3 tile PNGs, manifest, browserconfig, head-snippet
         for f in files:
             assert f.exists()
 ```
@@ -1054,6 +1099,12 @@ def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> li
     # PNG icons
     for filename, size in _PNG_SIZES.items():
         path = output_dir / filename
+        resize_image(source, size).save(path, "PNG")
+        created.append(path)
+
+    # MS tile PNGs
+    for size in _TILE_SIZES:
+        path = output_dir / f"icon-{size}.png"
         resize_image(source, size).save(path, "PNG")
         created.append(path)
 
