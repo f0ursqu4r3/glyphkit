@@ -34,9 +34,10 @@ def run(
     # Validate platforms
     invalid = [p for p in platforms if p not in PLATFORM_REGISTRY]
     if invalid:
-        print(f"Error: invalid platform(s): {', '.join(invalid)}", file=sys.stderr)
-        print(f"Valid platforms: {', '.join(VALID_PLATFORMS)}", file=sys.stderr)
-        sys.exit(1)
+        raise IconforgeError(
+            f"Invalid platform(s): {', '.join(invalid)}. "
+            f"Valid platforms: {', '.join(VALID_PLATFORMS)}"
+        )
 
     img = load_and_validate_image(source)
 
@@ -91,7 +92,11 @@ def main() -> None:
         source, platforms, options = _interactive_prompts()
 
     output_dir = pathlib.Path(args.output_dir)
-    run(source=source, platforms=platforms, output_dir=output_dir, options=options)
+    try:
+        run(source=source, platforms=platforms, output_dir=output_dir, options=options)
+    except IconforgeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
     print("Done!")
 
 

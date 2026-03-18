@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import warnings
 
 from PIL import Image
 
@@ -31,8 +32,6 @@ SIZES: list[tuple[str, float, int]] = [
 
 def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
     """Generate iOS app icon set."""
-    import warnings
-
     if has_transparency(source):
         warnings.warn("Source image has transparency. iOS does not support transparent app icons.")
 
@@ -55,7 +54,7 @@ def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> li
             "filename": filename,
             "idiom": "universal",
             "scale": f"{scale}x",
-            "size": f"{pt_size}x{pt_size}" if pt_size == int(pt_size) else f"{pt_size}x{pt_size}",
+            "size": f"{int(pt_size)}x{int(pt_size)}" if pt_size == int(pt_size) else f"{pt_size}x{pt_size}",
         }
         images_entries.append(entry)
 

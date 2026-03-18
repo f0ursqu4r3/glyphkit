@@ -30,7 +30,8 @@ class TestParseArgs:
 class TestRun:
     def test_invalid_platform_raises(self, square_1024: pathlib.Path, tmp_path: pathlib.Path) -> None:
         import pytest
-        with pytest.raises(SystemExit):
+        from iconforge.core import IconforgeError
+        with pytest.raises(IconforgeError, match="Invalid platform"):
             run(source=square_1024, platforms=["bogus"], output_dir=tmp_path, options={})
 
     def test_generates_for_single_platform(self, square_1024: pathlib.Path, tmp_path: pathlib.Path) -> None:

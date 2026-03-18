@@ -59,15 +59,12 @@ def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> li
 
     # Generate .icns
     icns = icnsutil.IcnsFile()
-    seen_keys: set[str] = set()
     for name, base_size, scale in SIZES:
         filepath = appiconset / f"{name}.png"
         try:
             icns.add_media(file=str(filepath))
-            # Track by checking what key was added
-        except Exception:
-            # Skip duplicates or unsupported sizes
-            pass
+        except (KeyError, ValueError):
+            pass  # Skip duplicate pixel sizes (e.g., 16@2x and 32@1x both = 32px)
 
     icns_path = output_dir / "AppIcon.icns"
     icns.write(str(icns_path))
