@@ -4,9 +4,1225 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iconforge</title>
+    <style>
+        :root {
+            --bg-base: #0a0a0f;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-border-hover: rgba(255, 255, 255, 0.1);
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-dim: #64748b;
+            --font-mono: "SF Mono", "Cascadia Code", "JetBrains Mono", monospace;
+            --radius-panel: 12px;
+            --radius-btn: 8px;
+            --radius-drop: 16px;
+            --transition: 150ms ease;
+            --red: #ef4444;
+            --green: #22c55e;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Subtle background gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% -20%, rgba(99, 102, 241, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139, 92, 246, 0.05), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Glass panel mixin ── */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-panel);
+        }
+
+        /* ── Header ── */
+        .header {
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ── Drop zone ── */
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-drop);
+            padding: 60px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .drop-zone:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--accent-1);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.15), inset 0 0 30px rgba(99, 102, 241, 0.03);
+            background: rgba(99, 102, 241, 0.04);
+            animation: borderPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { border-color: var(--accent-1); }
+            50% { border-color: var(--accent-2); }
+        }
+
+        .drop-zone__icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .drop-zone__text {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .drop-zone__text strong {
+            color: var(--text-primary);
+        }
+
+        .drop-zone__hint {
+            color: var(--text-dim);
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .drop-zone input[type="file"] {
+            display: none;
+        }
+
+        /* Preview state inside drop zone */
+        .drop-zone--has-image {
+            padding: 32px 24px;
+            min-height: 260px;
+        }
+
+        .image-preview {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drop-zone--has-image .image-preview {
+            display: flex;
+        }
+
+        .drop-zone--has-image .drop-zone__placeholder {
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            image-rendering: auto;
+        }
+
+        .image-preview__badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .badge {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        .badge--warn {
+            background: rgba(234, 179, 8, 0.1);
+            border-color: rgba(234, 179, 8, 0.2);
+            color: #eab308;
+        }
+
+        .change-image {
+            color: var(--accent-1);
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .change-image:hover {
+            color: var(--accent-2);
+        }
+
+        /* ── Live preview strip ── */
+        .preview-strip {
+            margin-top: 24px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease;
+        }
+
+        .preview-strip.visible {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        .preview-strip__inner {
+            padding: 20px;
+        }
+
+        .preview-strip__label {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .preview-strip__row {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .preview-strip__item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .preview-strip__img-wrap {
+            background-image:
+                linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%);
+            background-size: 8px 8px;
+            background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .preview-strip__img-wrap img {
+            display: block;
+            image-rendering: auto;
+        }
+
+        .preview-strip__size {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* ── Platform selector ── */
+        .section {
+            margin-top: 32px;
+        }
+
+        .section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .section__title {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-link {
+            font-size: 13px;
+            color: var(--accent-1);
+            cursor: pointer;
+            transition: color var(--transition);
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .toggle-link:hover {
+            color: var(--accent-2);
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .platform-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .platform-card {
+            padding: 16px;
+            cursor: pointer;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+            user-select: none;
+        }
+
+        .platform-card:hover {
+            border-color: var(--glass-border-hover);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .platform-card.selected {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1), inset 0 0 20px rgba(99, 102, 241, 0.02);
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .platform-card__icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .platform-card__name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .platform-card__desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+
+        /* ── Android options ── */
+        .android-options {
+            margin-top: 12px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 300ms ease, opacity 200ms ease, margin 200ms ease, padding 200ms ease;
+        }
+
+        .android-options.visible {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        .android-options__inner {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .android-options__label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .android-options__color-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .android-options__color-input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 36px;
+            height: 36px;
+            border: 2px solid var(--glass-border);
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .android-options__color-input::-webkit-color-swatch-wrapper {
+            padding: 2px;
+        }
+
+        .android-options__color-input::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .android-options__color-input::-moz-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .android-options__hex {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ── Generate button ── */
+        .generate-wrap {
+            margin-top: 32px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            height: 48px;
+            border: none;
+            border-radius: var(--radius-btn);
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+            position: relative;
+            font-family: inherit;
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: scale(1.01);
+            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.3);
+        }
+
+        .generate-btn:active:not(:disabled) {
+            transform: scale(0.995);
+        }
+
+        .generate-btn:disabled {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-dim);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .generate-btn.loading {
+            animation: btnPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes btnPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ── Results ── */
+        .results {
+            margin-top: 32px;
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+            animation: slideDown 400ms ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .summary-bar {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .summary-bar__text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .summary-bar__text strong {
+            color: var(--text-primary);
+        }
+
+        .summary-bar__actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-outline {
+            padding: 8px 16px;
+            border-radius: var(--radius-btn);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: transparent;
+            color: var(--accent-1);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background var(--transition), border-color var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .btn-outline:hover {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        /* Platform result cards */
+        .result-card {
+            margin-bottom: 8px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: cardFadeIn 300ms ease forwards;
+        }
+
+        @keyframes cardFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card__header {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background var(--transition);
+        }
+
+        .result-card__header:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .result-card__left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-card__platform {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .result-card__count {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-dim);
+        }
+
+        .result-card__chevron {
+            color: var(--text-dim);
+            transition: transform var(--transition);
+            font-size: 14px;
+        }
+
+        .result-card.expanded .result-card__chevron {
+            transform: rotate(180deg);
+        }
+
+        .result-card__body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 300ms ease;
+        }
+
+        .result-card.expanded .result-card__body {
+            max-height: 2000px;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            padding: 4px 20px 20px;
+        }
+
+        .icon-grid__item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 8px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            animation: thumbFadeIn 200ms ease forwards;
+        }
+
+        @keyframes thumbFadeIn {
+            to { opacity: 1; }
+        }
+
+        .icon-grid__item img {
+            display: block;
+            max-width: 100%;
+            max-height: 128px;
+            image-rendering: auto;
+            border-radius: 4px;
+        }
+
+        .icon-grid__item span {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* ── Toast notifications ── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius-panel);
+            background: rgba(15, 15, 25, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--text-primary);
+            font-size: 14px;
+            max-width: 380px;
+            pointer-events: auto;
+            animation: toastIn 300ms ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast--success {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .toast.dismissing {
+            animation: toastOut 200ms ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+        }
+
+        /* ── Warnings list ── */
+        .warnings {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .warning-text {
+            font-size: 12px;
+            color: #eab308;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        /* ── Mobile tweaks ── */
+        @media (max-width: 500px) {
+            .container {
+                padding: 24px 16px 60px;
+            }
+            .drop-zone {
+                min-height: 220px;
+                padding: 40px 16px;
+            }
+            .summary-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>iconforge</h1>
-    <p>Web UI coming soon.</p>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="container">
+    <!-- Header -->
+    <header class="header">
+        <h1>iconforge</h1>
+        <p>Universal App Icon Generator</p>
+    </header>
+
+    <!-- Drop zone -->
+    <div class="drop-zone" id="dropZone">
+        <div class="drop-zone__placeholder">
+            <div class="drop-zone__icon">&#x1F4E5;</div>
+            <div class="drop-zone__text">Drop your icon here or <strong>click to browse</strong></div>
+            <div class="drop-zone__hint">PNG format, square, 1024&times;1024 recommended</div>
+        </div>
+        <div class="image-preview" id="imagePreview">
+            <img id="previewImg" alt="Icon preview">
+            <div class="image-preview__badges" id="previewBadges"></div>
+            <div class="warnings" id="previewWarnings"></div>
+            <a class="change-image" id="changeImage">Change image</a>
+        </div>
+        <input type="file" id="fileInput" accept=".png,image/png">
+    </div>
+
+    <!-- Live preview strip -->
+    <div class="preview-strip glass" id="previewStrip">
+        <div class="preview-strip__inner">
+            <div class="preview-strip__label">Live Preview</div>
+            <div class="preview-strip__row" id="previewRow"></div>
+        </div>
+    </div>
+
+    <!-- Platform selector -->
+    <div class="section">
+        <div class="section__header">
+            <span class="section__title">Platforms</span>
+            <button class="toggle-link" id="toggleAll">Select All</button>
+        </div>
+        <div class="platform-grid" id="platformGrid">
+            <div class="platform-card glass" data-platform="ios">
+                <div class="platform-card__icon">&#x1F34E;</div>
+                <div class="platform-card__name">iOS</div>
+                <div class="platform-card__desc">AppIcon.appiconset</div>
+            </div>
+            <div class="platform-card glass" data-platform="android">
+                <div class="platform-card__icon">&#x1F916;</div>
+                <div class="platform-card__name">Android</div>
+                <div class="platform-card__desc">Adaptive &amp; legacy icons</div>
+            </div>
+            <div class="platform-card glass" data-platform="macos">
+                <div class="platform-card__icon">&#x1F5A5;</div>
+                <div class="platform-card__name">macOS</div>
+                <div class="platform-card__desc">AppIcon.appiconset + .icns</div>
+            </div>
+            <div class="platform-card glass" data-platform="windows">
+                <div class="platform-card__icon">&#x1FA9F;</div>
+                <div class="platform-card__name">Windows</div>
+                <div class="platform-card__desc">Multi-size .ico file</div>
+            </div>
+            <div class="platform-card glass" data-platform="web">
+                <div class="platform-card__icon">&#x1F310;</div>
+                <div class="platform-card__name">Web / PWA</div>
+                <div class="platform-card__desc">Favicons &amp; manifest icons</div>
+            </div>
+            <div class="platform-card glass" data-platform="linux">
+                <div class="platform-card__icon">&#x1F427;</div>
+                <div class="platform-card__name">Linux</div>
+                <div class="platform-card__desc">XDG icon sizes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Android options -->
+    <div class="android-options glass" id="androidOptions">
+        <div class="android-options__inner">
+            <span class="android-options__label">Adaptive icon background</span>
+            <div class="android-options__color-wrap">
+                <input type="color" class="android-options__color-input" id="androidBg" value="#FFFFFF">
+                <span class="android-options__hex" id="androidBgHex">#FFFFFF</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate button -->
+    <div class="generate-wrap">
+        <button class="generate-btn" id="generateBtn" disabled>Generate Icons</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+        <div class="summary-bar glass" id="summaryBar"></div>
+        <div id="resultCards"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    // ── State ──
+    let selectedPlatforms = new Set();
+    let imageFile = null;
+    let imageDataUrl = null;
+    let generationResult = null;
+
+    // ── DOM refs ──
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const previewImg = document.getElementById('previewImg');
+    const previewBadges = document.getElementById('previewBadges');
+    const previewWarnings = document.getElementById('previewWarnings');
+    const previewStrip = document.getElementById('previewStrip');
+    const previewRow = document.getElementById('previewRow');
+    const platformGrid = document.getElementById('platformGrid');
+    const toggleAllBtn = document.getElementById('toggleAll');
+    const androidOptions = document.getElementById('androidOptions');
+    const androidBg = document.getElementById('androidBg');
+    const androidBgHex = document.getElementById('androidBgHex');
+    const generateBtn = document.getElementById('generateBtn');
+    const results = document.getElementById('results');
+    const summaryBar = document.getElementById('summaryBar');
+    const resultCards = document.getElementById('resultCards');
+    const toastContainer = document.getElementById('toastContainer');
+    const changeImage = document.getElementById('changeImage');
+
+    const PREVIEW_SIZES = [16, 32, 64, 128, 256, 512];
+    const PLATFORM_EMOJIS = {
+        ios: '\uD83C\uDF4E',
+        android: '\uD83E\uDD16',
+        macos: '\uD83D\uDDA5\uFE0F',
+        windows: '\uD83E\uDE9F',
+        web: '\uD83C\uDF10',
+        linux: '\uD83D\uDC27'
+    };
+    const PLATFORM_NAMES = {
+        ios: 'iOS',
+        android: 'Android',
+        macos: 'macOS',
+        windows: 'Windows',
+        web: 'Web / PWA',
+        linux: 'Linux'
+    };
+
+    // ── Toast ──
+    function showToast(message, type) {
+        type = type || 'error';
+        const toast = document.createElement('div');
+        toast.className = 'toast' + (type === 'success' ? ' toast--success' : '');
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(function () {
+            toast.classList.add('dismissing');
+            toast.addEventListener('animationend', function () { toast.remove(); });
+        }, 5000);
+    }
+
+    // ── Update generate button state ──
+    function updateGenerateBtn() {
+        generateBtn.disabled = !(imageFile && selectedPlatforms.size > 0);
+    }
+
+    // ── Drop zone events ──
+    dropZone.addEventListener('click', function (e) {
+        if (e.target === changeImage || e.target.closest('.change-image')) return;
+        fileInput.click();
+    });
+
+    changeImage.addEventListener('click', function (e) {
+        e.stopPropagation();
+        fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        var files = e.dataTransfer.files;
+        if (files.length > 0) handleFile(files[0]);
+    });
+
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
+    });
+
+    // ── Handle file selection ──
+    function handleFile(file) {
+        if (!file.type.match(/^image\/png/)) {
+            showToast('Only PNG files are supported');
+            return;
+        }
+
+        imageFile = file;
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            imageDataUrl = e.target.result;
+            previewImg.src = imageDataUrl;
+            validateImage(file);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── Validate via API ──
+    async function validateImage(file) {
+        var formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            var resp = await fetch('/api/validate', { method: 'POST', body: formData });
+            var data = await resp.json();
+
+            if (!resp.ok) {
+                showToast(data.detail || 'Validation failed');
+                imageFile = null;
+                imageDataUrl = null;
+                return;
+            }
+
+            // Show preview
+            dropZone.classList.add('drop-zone--has-image');
+            previewBadges.innerHTML = '';
+            previewWarnings.innerHTML = '';
+
+            var dimBadge = document.createElement('span');
+            dimBadge.className = 'badge';
+            dimBadge.textContent = data.width + ' \u00D7 ' + data.height;
+            previewBadges.appendChild(dimBadge);
+
+            if (data.has_transparency) {
+                var tBadge = document.createElement('span');
+                tBadge.className = 'badge badge--warn';
+                tBadge.textContent = 'Has transparency';
+                previewBadges.appendChild(tBadge);
+            }
+
+            if (data.warnings && data.warnings.length > 0) {
+                data.warnings.forEach(function (w) {
+                    var el = document.createElement('div');
+                    el.className = 'warning-text';
+                    el.textContent = w;
+                    previewWarnings.appendChild(el);
+                });
+            }
+
+            // Populate live preview strip
+            populatePreviewStrip();
+            updateGenerateBtn();
+
+        } catch (err) {
+            showToast('Connection error');
+        }
+    }
+
+    // ── Live preview strip ──
+    function populatePreviewStrip() {
+        previewRow.innerHTML = '';
+        PREVIEW_SIZES.forEach(function (size) {
+            var item = document.createElement('div');
+            item.className = 'preview-strip__item';
+
+            var wrap = document.createElement('div');
+            wrap.className = 'preview-strip__img-wrap';
+            var displaySize = Math.min(size, 128);
+            wrap.style.width = (displaySize + 8) + 'px';
+            wrap.style.height = (displaySize + 8) + 'px';
+
+            var img = document.createElement('img');
+            img.src = imageDataUrl;
+            img.width = displaySize;
+            img.height = displaySize;
+            wrap.appendChild(img);
+
+            var label = document.createElement('span');
+            label.className = 'preview-strip__size';
+            label.textContent = size + 'px';
+
+            item.appendChild(wrap);
+            item.appendChild(label);
+            previewRow.appendChild(item);
+        });
+        previewStrip.classList.add('visible');
+    }
+
+    // ── Platform selector ──
+    var cards = platformGrid.querySelectorAll('.platform-card');
+    cards.forEach(function (card) {
+        card.addEventListener('click', function () {
+            var p = card.dataset.platform;
+            if (selectedPlatforms.has(p)) {
+                selectedPlatforms.delete(p);
+                card.classList.remove('selected');
+            } else {
+                selectedPlatforms.add(p);
+                card.classList.add('selected');
+            }
+            updateAndroidOptions();
+            updateGenerateBtn();
+            updateToggleLabel();
+        });
+    });
+
+    toggleAllBtn.addEventListener('click', function () {
+        if (selectedPlatforms.size === cards.length) {
+            // deselect all
+            selectedPlatforms.clear();
+            cards.forEach(function (c) { c.classList.remove('selected'); });
+        } else {
+            // select all
+            cards.forEach(function (c) {
+                selectedPlatforms.add(c.dataset.platform);
+                c.classList.add('selected');
+            });
+        }
+        updateAndroidOptions();
+        updateGenerateBtn();
+        updateToggleLabel();
+    });
+
+    function updateToggleLabel() {
+        toggleAllBtn.textContent = selectedPlatforms.size === cards.length ? 'Deselect All' : 'Select All';
+    }
+
+    function updateAndroidOptions() {
+        if (selectedPlatforms.has('android')) {
+            androidOptions.classList.add('visible');
+        } else {
+            androidOptions.classList.remove('visible');
+        }
+    }
+
+    androidBg.addEventListener('input', function () {
+        androidBgHex.textContent = androidBg.value.toUpperCase();
+    });
+
+    // ── Generate ──
+    generateBtn.addEventListener('click', async function () {
+        if (generateBtn.disabled) return;
+
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating\u2026';
+        generateBtn.classList.add('loading');
+        results.classList.remove('visible');
+
+        var formData = new FormData();
+        formData.append('image', imageFile);
+        formData.append('platforms', JSON.stringify(Array.from(selectedPlatforms)));
+        formData.append('android_bg', androidBg.value);
+
+        try {
+            var resp = await fetch('/api/generate', { method: 'POST', body: formData });
+            var data = await resp.json();
+
+            if (!resp.ok) {
+                showToast(data.detail || 'Generation failed');
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Icons';
+                generateBtn.classList.remove('loading');
+                return;
+            }
+
+            generationResult = data;
+            renderResults(data);
+
+        } catch (err) {
+            showToast('Connection error');
+        } finally {
+            generateBtn.classList.remove('loading');
+            generateBtn.textContent = 'Generate Icons';
+            updateGenerateBtn();
+        }
+    });
+
+    // ── Render results ──
+    function renderResults(data) {
+        var platforms = data.platforms;
+        var totalFiles = 0;
+        Object.values(platforms).forEach(function (p) { totalFiles += p.file_count; });
+
+        // Summary
+        summaryBar.innerHTML = '<div class="summary-bar__text"><strong>' + totalFiles + ' files</strong> generated across ' + Object.keys(platforms).length + ' platform' + (Object.keys(platforms).length > 1 ? 's' : '') + '</div>' +
+            '<div class="summary-bar__actions">' +
+            '<a href="/api/download" download="iconforge-output.zip" class="btn-outline">&#x2B07; Download ZIP</a>' +
+            '<button class="btn-outline" id="openFolderBtn">&#x1F4C2; Open Folder</button>' +
+            '</div>';
+
+        document.getElementById('openFolderBtn').addEventListener('click', async function () {
+            try {
+                var resp = await fetch('/api/open-folder', { method: 'POST' });
+                if (resp.ok) {
+                    showToast('Opened output folder', 'success');
+                } else {
+                    var errData = await resp.json();
+                    showToast(errData.detail || 'Could not open folder');
+                }
+            } catch (err) {
+                showToast('Connection error');
+            }
+        });
+
+        // Platform cards
+        resultCards.innerHTML = '';
+        var delay = 0;
+        for (var platformName in platforms) {
+            var pData = platforms[platformName];
+            var card = document.createElement('div');
+            card.className = 'result-card glass';
+            card.style.animationDelay = delay + 'ms';
+
+            var emoji = PLATFORM_EMOJIS[platformName] || '';
+            var displayName = PLATFORM_NAMES[platformName] || platformName;
+
+            card.innerHTML = '<div class="result-card__header">' +
+                '<div class="result-card__left">' +
+                '<span>' + emoji + '</span>' +
+                '<span class="result-card__platform">' + displayName + '</span>' +
+                '<span class="result-card__count">' + pData.file_count + ' file' + (pData.file_count > 1 ? 's' : '') + '</span>' +
+                '</div>' +
+                '<span class="result-card__chevron">&#x25BC;</span>' +
+                '</div>' +
+                '<div class="result-card__body"><div class="icon-grid"></div></div>';
+
+            var grid = card.querySelector('.icon-grid');
+            pData.files.forEach(function (file, idx) {
+                var item = document.createElement('div');
+                item.className = 'icon-grid__item';
+                item.style.animationDelay = (idx * 30) + 'ms';
+
+                var isImage = /\.(png|ico|icns)$/i.test(file.name);
+                if (isImage) {
+                    var img = document.createElement('img');
+                    img.src = file.preview_url;
+                    img.alt = file.name;
+                    img.loading = 'lazy';
+                    item.appendChild(img);
+                }
+
+                var label = document.createElement('span');
+                if (file.size > 0) {
+                    label.textContent = file.name + ' (' + file.size + '\u00D7' + file.size + ')';
+                } else {
+                    label.textContent = file.name;
+                }
+                item.appendChild(label);
+                grid.appendChild(item);
+            });
+
+            // Toggle expand
+            (function (c) {
+                c.querySelector('.result-card__header').addEventListener('click', function () {
+                    c.classList.toggle('expanded');
+                });
+            })(card);
+
+            resultCards.appendChild(card);
+            delay += 50;
+        }
+
+        results.classList.add('visible');
+
+        // Scroll into view
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+})();
+</script>
+
 </body>
 </html>
