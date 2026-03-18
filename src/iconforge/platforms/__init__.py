@@ -2,4 +2,8 @@
 
 from __future__ import annotations
 
-PLATFORM_REGISTRY: dict[str, object] = {}
+from iconforge.platforms.ios import generate as ios_generate
+
+PLATFORM_REGISTRY: dict[str, object] = {
+    "ios": ios_generate,
+}
