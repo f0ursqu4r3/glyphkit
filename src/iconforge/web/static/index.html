@@ -677,6 +677,15 @@
             animation: thumbFadeIn 200ms ease forwards;
             aspect-ratio: 1;
             overflow: hidden;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .icon-grid__item--clickable {
+            cursor: pointer;
+        }
+
+        .icon-grid__item--clickable:hover {
+            background: rgba(255, 255, 255, 0.04);
         }
 
         @keyframes thumbFadeIn {
@@ -721,6 +730,145 @@
 
         .icon-grid__label .size-tag {
             color: var(--text-secondary);
+        }
+
+        /* ── Preview modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-2xl);
+            opacity: 0;
+            transition: opacity 200ms ease;
+            cursor: pointer;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+        }
+
+        .modal {
+            background: rgba(18, 18, 28, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-panel);
+            max-width: 560px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+            cursor: default;
+            transform: scale(0.95) translateY(8px);
+            transition: transform 200ms ease;
+        }
+
+        .modal-overlay.visible .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .modal__title {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .modal__close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 20px;
+            cursor: pointer;
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
+            transition: color var(--transition), background var(--transition);
+            flex-shrink: 0;
+            margin-left: var(--space-md);
+            line-height: 1;
+        }
+
+        .modal__close:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .modal__preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3xl);
+            background-image:
+                linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.02) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.02) 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+            min-height: 200px;
+        }
+
+        .modal__preview img {
+            display: block;
+            max-width: 100%;
+            max-height: 400px;
+            image-rendering: auto;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Pixel-perfect rendering for small icons */
+        .modal__preview img.pixelated {
+            image-rendering: pixelated;
+        }
+
+        .modal__meta {
+            padding: var(--space-lg) var(--space-xl);
+            border-top: 1px solid var(--glass-border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-sm) var(--space-xl);
+        }
+
+        .modal__meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .modal__meta-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal__meta-key {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal__meta-value {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
         }
 
         /* ── Toast notifications ── */
@@ -821,6 +969,18 @@
 <body>
 
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- Preview modal -->
+<div class="modal-overlay" id="previewModal" role="dialog" aria-modal="true" aria-label="Icon preview">
+    <div class="modal">
+        <div class="modal__header">
+            <span class="modal__title" id="modalTitle"></span>
+            <button class="modal__close" id="modalClose" aria-label="Close preview">&times;</button>
+        </div>
+        <div class="modal__preview" id="modalPreview"></div>
+        <div class="modal__meta" id="modalMeta"></div>
+    </div>
+</div>
 
 <div class="container">
     <!-- Header -->
@@ -946,6 +1106,12 @@
     const toastContainer = document.getElementById('toastContainer');
     const changeImage = document.getElementById('changeImage');
 
+    const previewModal = document.getElementById('previewModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalPreview = document.getElementById('modalPreview');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalClose = document.getElementById('modalClose');
+
     const PREVIEW_SIZES = [16, 32, 64, 128, 256, 512];
     const PLATFORM_EMOJIS = {
         ios: '\uD83C\uDF4E',
@@ -976,6 +1142,97 @@
             toast.addEventListener('animationend', function () { toast.remove(); });
         }, 5000);
     }
+
+    // ── Preview modal ──
+    function openPreviewModal(file, platformName) {
+        modalTitle.textContent = file.name;
+
+        // Image preview
+        modalPreview.innerHTML = '';
+        var img = document.createElement('img');
+        img.src = file.preview_url;
+        img.alt = file.name;
+        // Use pixelated rendering for icons <= 64px so they stay crisp
+        if (file.size > 0 && file.size <= 64) {
+            img.classList.add('pixelated');
+            img.style.width = Math.max(file.size * 4, 128) + 'px';
+            img.style.height = Math.max(file.size * 4, 128) + 'px';
+        }
+        modalPreview.appendChild(img);
+
+        // Metadata
+        modalMeta.innerHTML = '';
+        var metaItems = [];
+
+        if (file.size > 0) {
+            metaItems.push({ key: 'Dimensions', value: file.size + ' \u00D7 ' + file.size + ' px' });
+        }
+
+        metaItems.push({ key: 'Platform', value: PLATFORM_NAMES[platformName] || platformName });
+        metaItems.push({ key: 'Filename', value: file.name, full: true });
+
+        // File extension info
+        var ext = file.name.split('.').pop().toLowerCase();
+        var formatMap = {
+            png: 'PNG — Portable Network Graphics (lossless)',
+            ico: 'ICO — Windows icon (multi-resolution)',
+            icns: 'ICNS — macOS icon container'
+        };
+        if (formatMap[ext]) {
+            metaItems.push({ key: 'Format', value: formatMap[ext], full: true });
+        }
+
+        // Usage hint per platform
+        var usageMap = {
+            ios: 'Add to Xcode asset catalog (AppIcon.appiconset)',
+            android: 'Place in res/mipmap-* directories',
+            macos: 'Add to Xcode asset catalog or use .icns directly',
+            windows: 'Set as application icon in project properties',
+            web: 'Reference in HTML <head> or manifest.json',
+            linux: 'Install to /usr/share/icons/hicolor/'
+        };
+        if (usageMap[platformName]) {
+            metaItems.push({ key: 'Usage', value: usageMap[platformName], full: true });
+        }
+
+        metaItems.forEach(function (m) {
+            var item = document.createElement('div');
+            item.className = 'modal__meta-item' + (m.full ? ' full-width' : '');
+            item.innerHTML = '<span class="modal__meta-key">' + m.key + '</span>' +
+                '<span class="modal__meta-value">' + m.value + '</span>';
+            modalMeta.appendChild(item);
+        });
+
+        // Show
+        previewModal.style.display = 'flex';
+        requestAnimationFrame(function () {
+            previewModal.classList.add('visible');
+        });
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePreviewModal() {
+        previewModal.classList.remove('visible');
+        previewModal.addEventListener('transitionend', function handler() {
+            previewModal.removeEventListener('transitionend', handler);
+            previewModal.style.display = 'none';
+            modalPreview.innerHTML = '';
+            modalMeta.innerHTML = '';
+        });
+        document.body.style.overflow = '';
+    }
+
+    previewModal.style.display = 'none';
+
+    modalClose.addEventListener('click', closePreviewModal);
+    previewModal.addEventListener('click', function (e) {
+        if (e.target === previewModal) closePreviewModal();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && previewModal.classList.contains('visible')) {
+            closePreviewModal();
+        }
+    });
 
     // ── Update generate button state ──
     function updateGenerateBtn() {
@@ -1286,11 +1543,17 @@
 
                 var isImage = /\.(png|ico|icns)$/i.test(file.name);
                 if (isImage) {
+                    item.classList.add('icon-grid__item--clickable');
                     var img = document.createElement('img');
                     img.src = file.preview_url;
                     img.alt = file.name;
                     img.loading = 'lazy';
                     thumb.appendChild(img);
+                    (function (f, pName) {
+                        item.addEventListener('click', function () {
+                            openPreviewModal(f, pName);
+                        });
+                    })(file, platformName);
                 } else {
                     thumb.classList.add('icon-grid__thumb--file');
                     thumb.textContent = '\uD83D\uDCC4';
