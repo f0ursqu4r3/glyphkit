@@ -6,22 +6,59 @@
     <title>iconforge</title>
     <style>
         :root {
+            /* Colors */
             --bg-base: #0a0a0f;
             --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-bg-hover: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.06);
             --glass-border-hover: rgba(255, 255, 255, 0.1);
             --accent-1: #6366f1;
             --accent-2: #8b5cf6;
+            --accent-faint: rgba(99, 102, 241, 0.04);
+            --accent-border: rgba(99, 102, 241, 0.4);
+            --accent-glow: rgba(99, 102, 241, 0.1);
+            --accent-outline: rgba(99, 102, 241, 0.3);
+            --accent-outline-hover: rgba(99, 102, 241, 0.5);
+            --accent-btn-hover: rgba(99, 102, 241, 0.08);
             --text-primary: #e2e8f0;
             --text-secondary: #94a3b8;
             --text-dim: #64748b;
+            --warn: #eab308;
+            --warn-bg: rgba(234, 179, 8, 0.1);
+            --warn-border: rgba(234, 179, 8, 0.2);
+            --red: #ef4444;
+            --red-border: rgba(239, 68, 68, 0.3);
+            --green: #22c55e;
+            --green-border: rgba(34, 197, 94, 0.3);
+
+            /* Typography */
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             --font-mono: "SF Mono", "Cascadia Code", "JetBrains Mono", monospace;
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 20px;
+            --space-2xl: 24px;
+            --space-3xl: 32px;
+            --space-4xl: 40px;
+            --space-5xl: 48px;
+
+            /* Radii */
+            --radius-sm: 4px;
+            --radius-md: 6px;
             --radius-panel: 12px;
             --radius-btn: 8px;
             --radius-drop: 16px;
+
+            /* Motion */
             --transition: 150ms ease;
-            --red: #ef4444;
-            --green: #22c55e;
+            --transition-slow: 300ms ease;
+
+            /* Focus */
+            --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-1);
         }
 
         *, *::before, *::after {
@@ -33,11 +70,17 @@
         body {
             background: var(--bg-base);
             color: var(--text-primary);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6;
+            font-family: var(--font-sans);
+            line-height: 1.5;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Focus styles for keyboard navigation */
+        :focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
         }
 
         /* Subtle background gradient */
@@ -115,13 +158,13 @@
 
         .drop-zone:hover {
             border-color: rgba(255, 255, 255, 0.15);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--glass-bg-hover);
         }
 
         .drop-zone.dragover {
             border-color: var(--accent-1);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.15), inset 0 0 30px rgba(99, 102, 241, 0.03);
-            background: rgba(99, 102, 241, 0.04);
+            box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px rgba(99, 102, 241, 0.03);
+            background: var(--accent-faint);
             animation: borderPulse 1.5s ease-in-out infinite;
         }
 
@@ -201,9 +244,9 @@
         }
 
         .badge--warn {
-            background: rgba(234, 179, 8, 0.1);
-            border-color: rgba(234, 179, 8, 0.2);
-            color: #eab308;
+            background: var(--warn-bg);
+            border-color: var(--warn-border);
+            color: var(--warn);
         }
 
         .change-image {
@@ -342,13 +385,13 @@
 
         .platform-card:hover {
             border-color: var(--glass-border-hover);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--glass-bg-hover);
         }
 
         .platform-card.selected {
-            border-color: rgba(99, 102, 241, 0.4);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1), inset 0 0 20px rgba(99, 102, 241, 0.02);
-            background: rgba(99, 102, 241, 0.04);
+            border-color: var(--accent-border);
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px rgba(99, 102, 241, 0.02);
+            background: var(--accent-faint);
         }
 
         .platform-card__icon {
@@ -454,7 +497,7 @@
 
         .generate-btn:hover:not(:disabled) {
             transform: scale(1.01);
-            box-shadow: 0 4px 24px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 4px 24px var(--accent-outline);
         }
 
         .generate-btn:active:not(:disabled) {
@@ -524,9 +567,9 @@
         }
 
         .btn-outline {
-            padding: 8px 16px;
+            padding: var(--space-sm) var(--space-lg);
             border-radius: var(--radius-btn);
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            border: 1px solid var(--accent-outline);
             background: transparent;
             color: var(--accent-1);
             font-size: 13px;
@@ -536,13 +579,13 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: var(--space-md);
             font-family: inherit;
         }
 
         .btn-outline:hover {
-            background: rgba(99, 102, 241, 0.08);
-            border-color: rgba(99, 102, 241, 0.5);
+            background: var(--accent-btn-hover);
+            border-color: var(--accent-outline-hover);
         }
 
         /* Platform result cards */
@@ -669,7 +712,7 @@
             background: rgba(15, 15, 25, 0.9);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border: 1px solid var(--red-border);
             color: var(--text-primary);
             font-size: 14px;
             max-width: 380px;
@@ -679,7 +722,7 @@
         }
 
         .toast--success {
-            border-color: rgba(34, 197, 94, 0.3);
+            border-color: var(--green-border);
         }
 
         .toast.dismissing {
@@ -714,7 +757,7 @@
 
         .warning-text {
             font-size: 12px;
-            color: #eab308;
+            color: var(--warn);
         }
 
         /* ── Scrollbar ── */
@@ -748,7 +791,7 @@
 </head>
 <body>
 
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <div class="container">
     <!-- Header -->
@@ -758,7 +801,7 @@
     </header>
 
     <!-- Drop zone -->
-    <div class="drop-zone" id="dropZone">
+    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
         <div class="drop-zone__placeholder">
             <div class="drop-zone__icon">&#x1F4E5;</div>
             <div class="drop-zone__text">Drop your icon here or <strong>click to browse</strong></div>
@@ -788,33 +831,33 @@
             <button class="toggle-link" id="toggleAll">Select All</button>
         </div>
         <div class="platform-grid" id="platformGrid">
-            <div class="platform-card glass" data-platform="ios">
-                <div class="platform-card__icon">&#x1F34E;</div>
+            <div class="platform-card glass" data-platform="ios" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true">&#x1F34E;</div>
                 <div class="platform-card__name">iOS</div>
                 <div class="platform-card__desc">AppIcon.appiconset</div>
             </div>
-            <div class="platform-card glass" data-platform="android">
-                <div class="platform-card__icon">&#x1F916;</div>
+            <div class="platform-card glass" data-platform="android" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true">&#x1F916;</div>
                 <div class="platform-card__name">Android</div>
                 <div class="platform-card__desc">Adaptive &amp; legacy icons</div>
             </div>
-            <div class="platform-card glass" data-platform="macos">
-                <div class="platform-card__icon">&#x1F5A5;</div>
+            <div class="platform-card glass" data-platform="macos" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true">&#x1F5A5;</div>
                 <div class="platform-card__name">macOS</div>
                 <div class="platform-card__desc">AppIcon.appiconset + .icns</div>
             </div>
-            <div class="platform-card glass" data-platform="windows">
-                <div class="platform-card__icon">&#x1FA9F;</div>
+            <div class="platform-card glass" data-platform="windows" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true">&#x1FA9F;</div>
                 <div class="platform-card__name">Windows</div>
                 <div class="platform-card__desc">Multi-size .ico file</div>
             </div>
-            <div class="platform-card glass" data-platform="web">
-                <div class="platform-card__icon">&#x1F310;</div>
+            <div class="platform-card glass" data-platform="web" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true">&#x1F310;</div>
                 <div class="platform-card__name">Web / PWA</div>
                 <div class="platform-card__desc">Favicons &amp; manifest icons</div>
             </div>
-            <div class="platform-card glass" data-platform="linux">
-                <div class="platform-card__icon">&#x1F427;</div>
+            <div class="platform-card glass" data-platform="linux" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true">&#x1F427;</div>
                 <div class="platform-card__name">Linux</div>
                 <div class="platform-card__desc">XDG icon sizes</div>
             </div>
@@ -914,6 +957,13 @@
     dropZone.addEventListener('click', function (e) {
         if (e.target === changeImage || e.target.closest('.change-image')) return;
         fileInput.click();
+    });
+
+    dropZone.addEventListener('keydown', function (e) {
+        if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            fileInput.click();
+        }
     });
 
     changeImage.addEventListener('click', function (e) {
@@ -1043,32 +1093,42 @@
 
     // ── Platform selector ──
     var cards = platformGrid.querySelectorAll('.platform-card');
+
+    function togglePlatformCard(card) {
+        var p = card.dataset.platform;
+        if (selectedPlatforms.has(p)) {
+            selectedPlatforms.delete(p);
+            card.classList.remove('selected');
+            card.setAttribute('aria-checked', 'false');
+        } else {
+            selectedPlatforms.add(p);
+            card.classList.add('selected');
+            card.setAttribute('aria-checked', 'true');
+        }
+        updateAndroidOptions();
+        updateGenerateBtn();
+        updateToggleLabel();
+    }
+
     cards.forEach(function (card) {
-        card.addEventListener('click', function () {
-            var p = card.dataset.platform;
-            if (selectedPlatforms.has(p)) {
-                selectedPlatforms.delete(p);
-                card.classList.remove('selected');
-            } else {
-                selectedPlatforms.add(p);
-                card.classList.add('selected');
+        card.addEventListener('click', function () { togglePlatformCard(card); });
+        card.addEventListener('keydown', function (e) {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                togglePlatformCard(card);
             }
-            updateAndroidOptions();
-            updateGenerateBtn();
-            updateToggleLabel();
         });
     });
 
     toggleAllBtn.addEventListener('click', function () {
         if (selectedPlatforms.size === cards.length) {
-            // deselect all
             selectedPlatforms.clear();
-            cards.forEach(function (c) { c.classList.remove('selected'); });
+            cards.forEach(function (c) { c.classList.remove('selected'); c.setAttribute('aria-checked', 'false'); });
         } else {
-            // select all
             cards.forEach(function (c) {
                 selectedPlatforms.add(c.dataset.platform);
                 c.classList.add('selected');
+                c.setAttribute('aria-checked', 'true');
             });
         }
         updateAndroidOptions();
