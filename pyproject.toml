@@ -23,5 +23,5 @@ packages = ["src/iconforge"]
 testpaths = ["tests"]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "httpx>=0.27"]
 ui = ["fastapi>=0.110", "uvicorn>=0.27", "python-multipart>=0.0.9"]
