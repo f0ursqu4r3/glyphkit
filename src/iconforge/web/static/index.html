@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iconforge</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
         :root {
             /* Colors */
@@ -174,9 +175,8 @@
         }
 
         .drop-zone__icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
+            margin-bottom: var(--space-lg);
+            color: var(--text-dim);
         }
 
         .drop-zone__text {
@@ -395,8 +395,12 @@
         }
 
         .platform-card__icon {
-            font-size: 24px;
-            margin-bottom: 8px;
+            margin-bottom: var(--space-sm);
+            color: var(--text-secondary);
+        }
+
+        .platform-card.selected .platform-card__icon {
+            color: var(--accent-1);
         }
 
         .platform-card__name {
@@ -640,7 +644,7 @@
         .result-card__chevron {
             color: var(--text-dim);
             transition: transform var(--transition);
-            font-size: 14px;
+            flex-shrink: 0;
         }
 
         .result-card.expanded .result-card__chevron {
@@ -712,8 +716,7 @@
 
         .icon-grid__thumb--file {
             color: var(--text-dim);
-            font-size: 28px;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .icon-grid__label {
@@ -992,7 +995,7 @@
     <!-- Drop zone -->
     <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
         <div class="drop-zone__placeholder">
-            <div class="drop-zone__icon">&#x1F4E5;</div>
+            <div class="drop-zone__icon"><i data-lucide="upload" size="48" stroke-width="1.5"></i></div>
             <div class="drop-zone__text">Drop your icon here or <strong>click to browse</strong></div>
             <div class="drop-zone__hint">PNG format, square, 1024&times;1024 recommended</div>
         </div>
@@ -1021,32 +1024,32 @@
         </div>
         <div class="platform-grid" id="platformGrid">
             <div class="platform-card glass" data-platform="ios" role="checkbox" aria-checked="false" tabindex="0">
-                <div class="platform-card__icon" aria-hidden="true">&#x1F34E;</div>
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="smartphone" size="22"></i></div>
                 <div class="platform-card__name">iOS</div>
                 <div class="platform-card__desc">AppIcon.appiconset</div>
             </div>
             <div class="platform-card glass" data-platform="android" role="checkbox" aria-checked="false" tabindex="0">
-                <div class="platform-card__icon" aria-hidden="true">&#x1F916;</div>
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="tablet-smartphone" size="22"></i></div>
                 <div class="platform-card__name">Android</div>
                 <div class="platform-card__desc">Adaptive &amp; legacy icons</div>
             </div>
             <div class="platform-card glass" data-platform="macos" role="checkbox" aria-checked="false" tabindex="0">
-                <div class="platform-card__icon" aria-hidden="true">&#x1F5A5;</div>
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="monitor" size="22"></i></div>
                 <div class="platform-card__name">macOS</div>
                 <div class="platform-card__desc">AppIcon.appiconset + .icns</div>
             </div>
             <div class="platform-card glass" data-platform="windows" role="checkbox" aria-checked="false" tabindex="0">
-                <div class="platform-card__icon" aria-hidden="true">&#x1FA9F;</div>
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="app-window" size="22"></i></div>
                 <div class="platform-card__name">Windows</div>
                 <div class="platform-card__desc">Multi-size .ico file</div>
             </div>
             <div class="platform-card glass" data-platform="web" role="checkbox" aria-checked="false" tabindex="0">
-                <div class="platform-card__icon" aria-hidden="true">&#x1F310;</div>
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="globe" size="22"></i></div>
                 <div class="platform-card__name">Web / PWA</div>
                 <div class="platform-card__desc">Favicons &amp; manifest icons</div>
             </div>
             <div class="platform-card glass" data-platform="linux" role="checkbox" aria-checked="false" tabindex="0">
-                <div class="platform-card__icon" aria-hidden="true">&#x1F427;</div>
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="terminal" size="22"></i></div>
                 <div class="platform-card__name">Linux</div>
                 <div class="platform-card__desc">XDG icon sizes</div>
             </div>
@@ -1113,13 +1116,13 @@
     const modalClose = document.getElementById('modalClose');
 
     const PREVIEW_SIZES = [16, 32, 64, 128, 256, 512];
-    const PLATFORM_EMOJIS = {
-        ios: '\uD83C\uDF4E',
-        android: '\uD83E\uDD16',
-        macos: '\uD83D\uDDA5\uFE0F',
-        windows: '\uD83E\uDE9F',
-        web: '\uD83C\uDF10',
-        linux: '\uD83D\uDC27'
+    const PLATFORM_ICONS = {
+        ios: 'smartphone',
+        android: 'tablet-smartphone',
+        macos: 'monitor',
+        windows: 'app-window',
+        web: 'globe',
+        linux: 'terminal'
     };
     const PLATFORM_NAMES = {
         ios: 'iOS',
@@ -1485,8 +1488,8 @@
         // Summary
         summaryBar.innerHTML = '<div class="summary-bar__text"><strong>' + totalFiles + ' files</strong> generated across ' + Object.keys(platforms).length + ' platform' + (Object.keys(platforms).length > 1 ? 's' : '') + '</div>' +
             '<div class="summary-bar__actions">' +
-            '<a href="/api/download" download="iconforge-output.zip" class="btn-outline">&#x2B07; Download ZIP</a>' +
-            '<button class="btn-outline" id="openFolderBtn">&#x1F4C2; Open Folder</button>' +
+            '<a href="/api/download" download="iconforge-output.zip" class="btn-outline"><i data-lucide="download" size="14"></i> Download ZIP</a>' +
+            '<button class="btn-outline" id="openFolderBtn"><i data-lucide="folder-open" size="14"></i> Open Folder</button>' +
             '</div>';
 
         document.getElementById('openFolderBtn').addEventListener('click', async function () {
@@ -1512,16 +1515,16 @@
             card.className = 'result-card glass';
             card.style.animationDelay = delay + 'ms';
 
-            var emoji = PLATFORM_EMOJIS[platformName] || '';
+            var iconName = PLATFORM_ICONS[platformName] || 'box';
             var displayName = PLATFORM_NAMES[platformName] || platformName;
 
             card.innerHTML = '<div class="result-card__header">' +
                 '<div class="result-card__left">' +
-                '<span>' + emoji + '</span>' +
+                '<i data-lucide="' + iconName + '" size="16"></i>' +
                 '<span class="result-card__platform">' + displayName + '</span>' +
                 '<span class="result-card__count">' + pData.file_count + ' file' + (pData.file_count > 1 ? 's' : '') + '</span>' +
                 '</div>' +
-                '<span class="result-card__chevron">&#x25BC;</span>' +
+                '<i data-lucide="chevron-down" size="14" class="result-card__chevron"></i>' +
                 '</div>' +
                 '<div class="result-card__body"><div class="icon-grid"></div></div>';
 
@@ -1556,7 +1559,7 @@
                     })(file, platformName);
                 } else {
                     thumb.classList.add('icon-grid__thumb--file');
-                    thumb.textContent = '\uD83D\uDCC4';
+                    thumb.innerHTML = '<i data-lucide="file-text" size="28"></i>';
                 }
                 item.appendChild(thumb);
 
@@ -1583,10 +1586,14 @@
         }
 
         results.classList.add('visible');
+        lucide.createIcons();
 
         // Scroll into view
         results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // Initialize Lucide icons on page load
+    lucide.createIcons();
 
 })();
 </script>
