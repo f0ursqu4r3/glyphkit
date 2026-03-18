@@ -23,13 +23,17 @@ def load_and_validate_image(path: pathlib.Path) -> Image.Image:
     if not path.exists():
         raise IconforgeError(f"File not found: {path}")
     if path.suffix.lower() != ".png":
-        raise IconforgeError(f"Unsupported format: {path.suffix}. Only PNG is supported.")
+        raise IconforgeError(
+            f"Unsupported format: {path.suffix}. Only PNG is supported."
+        )
     img = Image.open(path)
     w, h = img.size
     if w != h:
         raise IconforgeError(f"Image must be square, got {w}×{h}")
     if w < 1024:
-        warnings.warn(f"Source image is {w}×{h}, 1024×1024 recommended for best quality")
+        warnings.warn(
+            f"Source image is {w}×{h}, 1024×1024 recommended for best quality"
+        )
     return img
 
 

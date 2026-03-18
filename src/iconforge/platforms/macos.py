@@ -25,7 +25,9 @@ SIZES: list[tuple[str, int, int]] = [
 ]
 
 
-def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
+def generate(
+    source: Image.Image, output_dir: pathlib.Path, options: dict
+) -> list[pathlib.Path]:
     """Generate macOS app icon set and .icns file."""
     appiconset = output_dir / "AppIcon.appiconset"
     appiconset.mkdir(parents=True, exist_ok=True)
@@ -42,12 +44,14 @@ def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> li
         resized.save(filepath, "PNG")
         created.append(filepath)
 
-        images_entries.append({
-            "filename": filename,
-            "idiom": "mac",
-            "scale": f"{scale}x",
-            "size": f"{base_size}x{base_size}",
-        })
+        images_entries.append(
+            {
+                "filename": filename,
+                "idiom": "mac",
+                "scale": f"{scale}x",
+                "size": f"{base_size}x{base_size}",
+            }
+        )
 
     contents = {
         "images": images_entries,

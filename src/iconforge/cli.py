@@ -17,10 +17,18 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Universal app icon generator",
     )
     parser.add_argument("--source", help="Path to source PNG image")
-    parser.add_argument("--platforms", help="Comma-separated platforms: " + ", ".join(VALID_PLATFORMS))
-    parser.add_argument("--output-dir", default="./iconforge-output", help="Output directory")
-    parser.add_argument("--android-bg", default="#FFFFFF", help="Android adaptive icon background color")
-    parser.add_argument("--no-prompt", action="store_true", help="Skip interactive prompts")
+    parser.add_argument(
+        "--platforms", help="Comma-separated platforms: " + ", ".join(VALID_PLATFORMS)
+    )
+    parser.add_argument(
+        "--output-dir", default="./iconforge-output", help="Output directory"
+    )
+    parser.add_argument(
+        "--android-bg", default="#FFFFFF", help="Android adaptive icon background color"
+    )
+    parser.add_argument(
+        "--no-prompt", action="store_true", help="Skip interactive prompts"
+    )
     return parser.parse_args(argv)
 
 
@@ -83,7 +91,10 @@ def main() -> None:
 
     if args.no_prompt:
         if not args.source or not args.platforms:
-            print("Error: --source and --platforms required with --no-prompt", file=sys.stderr)
+            print(
+                "Error: --source and --platforms required with --no-prompt",
+                file=sys.stderr,
+            )
             sys.exit(1)
         source = pathlib.Path(args.source)
         platforms = [p.strip() for p in args.platforms.split(",")]

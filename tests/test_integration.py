@@ -9,7 +9,9 @@ from iconforge.platforms import VALID_PLATFORMS
 
 
 class TestFullGeneration:
-    def test_all_platforms(self, square_1024: pathlib.Path, tmp_path: pathlib.Path) -> None:
+    def test_all_platforms(
+        self, square_1024: pathlib.Path, tmp_path: pathlib.Path
+    ) -> None:
         run(
             source=square_1024,
             platforms=VALID_PLATFORMS,

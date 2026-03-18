@@ -19,7 +19,9 @@ Exec=application
 """
 
 
-def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
+def generate(
+    source: Image.Image, output_dir: pathlib.Path, options: dict
+) -> list[pathlib.Path]:
     """Generate Linux hicolor icons and .desktop stub."""
     created: list[pathlib.Path] = []
 

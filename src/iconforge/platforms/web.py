@@ -39,7 +39,9 @@ _BROWSERCONFIG_TEMPLATE = """\
 """
 
 
-def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
+def generate(
+    source: Image.Image, output_dir: pathlib.Path, options: dict
+) -> list[pathlib.Path]:
     """Generate Web/PWA icons and config files."""
     output_dir.mkdir(parents=True, exist_ok=True)
     created: list[pathlib.Path] = []
@@ -48,7 +50,9 @@ def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> li
     ico_16 = resize_image(source, 16)
     ico_32 = resize_image(source, 32)
     favicon_path = output_dir / "favicon.ico"
-    ico_16.save(favicon_path, format="ICO", append_images=[ico_32], sizes=[(16, 16), (32, 32)])
+    ico_16.save(
+        favicon_path, format="ICO", append_images=[ico_32], sizes=[(16, 16), (32, 32)]
+    )
     created.append(favicon_path)
 
     # PNG icons

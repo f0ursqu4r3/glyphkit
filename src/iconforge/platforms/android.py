@@ -43,7 +43,9 @@ def _create_foreground(source: Image.Image, canvas_size: int) -> Image.Image:
     return canvas
 
 
-def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
+def generate(
+    source: Image.Image, output_dir: pathlib.Path, options: dict
+) -> list[pathlib.Path]:
     """Generate Android launcher icons with adaptive icon support."""
     created: list[pathlib.Path] = []
     bg_color = options.get("android_bg", "#FFFFFF")

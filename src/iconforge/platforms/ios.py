@@ -30,10 +30,14 @@ SIZES: list[tuple[str, float, int]] = [
 ]
 
 
-def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]:
+def generate(
+    source: Image.Image, output_dir: pathlib.Path, options: dict
+) -> list[pathlib.Path]:
     """Generate iOS app icon set."""
     if has_transparency(source):
-        warnings.warn("Source image has transparency. iOS does not support transparent app icons.")
+        warnings.warn(
+            "Source image has transparency. iOS does not support transparent app icons."
+        )
 
     appiconset = output_dir / "AppIcon.appiconset"
     appiconset.mkdir(parents=True, exist_ok=True)
@@ -54,7 +58,9 @@ def generate(source: Image.Image, output_dir: pathlib.Path, options: dict) -> li
             "filename": filename,
             "idiom": "universal",
             "scale": f"{scale}x",
-            "size": f"{int(pt_size)}x{int(pt_size)}" if pt_size == int(pt_size) else f"{pt_size}x{pt_size}",
+            "size": f"{int(pt_size)}x{int(pt_size)}"
+            if pt_size == int(pt_size)
+            else f"{pt_size}x{pt_size}",
         }
         images_entries.append(entry)
 

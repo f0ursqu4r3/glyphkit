@@ -8,7 +8,12 @@ import warnings
 import pytest
 from PIL import Image
 
-from iconforge.core import IconforgeError, has_transparency, load_and_validate_image, resize_image
+from iconforge.core import (
+    IconforgeError,
+    has_transparency,
+    load_and_validate_image,
+    resize_image,
+)
 
 
 class TestLoadAndValidateImage:
