@@ -996,8 +996,8 @@
     <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
         <div class="drop-zone__placeholder">
             <div class="drop-zone__icon"><i data-lucide="upload" size="48" stroke-width="1.5"></i></div>
-            <div class="drop-zone__text">Drop your icon here or <strong>click to browse</strong></div>
-            <div class="drop-zone__hint">PNG format, square, 1024&times;1024 recommended</div>
+            <div class="drop-zone__text">Drop your icon here or <strong>browse files</strong></div>
+            <div class="drop-zone__hint">Square PNG, ideally 1024&times;1024 or larger</div>
         </div>
         <div class="image-preview" id="imagePreview">
             <img id="previewImg" alt="Icon preview">
@@ -1011,7 +1011,7 @@
     <!-- Live preview strip -->
     <div class="preview-strip glass" id="previewStrip">
         <div class="preview-strip__inner">
-            <div class="preview-strip__label">Live Preview</div>
+            <div class="preview-strip__label">Size Preview</div>
             <div class="preview-strip__row" id="previewRow"></div>
         </div>
     </div>
@@ -1026,32 +1026,32 @@
             <div class="platform-card glass" data-platform="ios" role="checkbox" aria-checked="false" tabindex="0">
                 <div class="platform-card__icon" aria-hidden="true"><i data-lucide="smartphone" size="22"></i></div>
                 <div class="platform-card__name">iOS</div>
-                <div class="platform-card__desc">AppIcon.appiconset</div>
+                <div class="platform-card__desc">Xcode asset catalog</div>
             </div>
             <div class="platform-card glass" data-platform="android" role="checkbox" aria-checked="false" tabindex="0">
                 <div class="platform-card__icon" aria-hidden="true"><i data-lucide="tablet-smartphone" size="22"></i></div>
                 <div class="platform-card__name">Android</div>
-                <div class="platform-card__desc">Adaptive &amp; legacy icons</div>
+                <div class="platform-card__desc">Adaptive + legacy icons</div>
             </div>
             <div class="platform-card glass" data-platform="macos" role="checkbox" aria-checked="false" tabindex="0">
                 <div class="platform-card__icon" aria-hidden="true"><i data-lucide="monitor" size="22"></i></div>
                 <div class="platform-card__name">macOS</div>
-                <div class="platform-card__desc">AppIcon.appiconset + .icns</div>
+                <div class="platform-card__desc">Asset catalog + .icns</div>
             </div>
             <div class="platform-card glass" data-platform="windows" role="checkbox" aria-checked="false" tabindex="0">
                 <div class="platform-card__icon" aria-hidden="true"><i data-lucide="app-window" size="22"></i></div>
                 <div class="platform-card__name">Windows</div>
-                <div class="platform-card__desc">Multi-size .ico file</div>
+                <div class="platform-card__desc">Multi-size .ico</div>
             </div>
             <div class="platform-card glass" data-platform="web" role="checkbox" aria-checked="false" tabindex="0">
                 <div class="platform-card__icon" aria-hidden="true"><i data-lucide="globe" size="22"></i></div>
                 <div class="platform-card__name">Web / PWA</div>
-                <div class="platform-card__desc">Favicons &amp; manifest icons</div>
+                <div class="platform-card__desc">Favicons, manifest + meta</div>
             </div>
             <div class="platform-card glass" data-platform="linux" role="checkbox" aria-checked="false" tabindex="0">
                 <div class="platform-card__icon" aria-hidden="true"><i data-lucide="terminal" size="22"></i></div>
                 <div class="platform-card__name">Linux</div>
-                <div class="platform-card__desc">XDG icon sizes</div>
+                <div class="platform-card__desc">Hicolor icon theme</div>
             </div>
         </div>
     </div>
@@ -1059,7 +1059,7 @@
     <!-- Android options -->
     <div class="android-options glass" id="androidOptions">
         <div class="android-options__inner">
-            <span class="android-options__label">Adaptive icon background</span>
+            <span class="android-options__label">Android background color</span>
             <div class="android-options__color-wrap">
                 <input type="color" class="android-options__color-input" id="androidBg" value="#FFFFFF">
                 <span class="android-options__hex" id="androidBgHex">#FFFFFF</span>
@@ -1284,7 +1284,7 @@
     // ── Handle file selection ──
     function handleFile(file) {
         if (!file.type.match(/^image\/png/)) {
-            showToast('Only PNG files are supported');
+            showToast('Only PNG files are supported. Convert your image to PNG and try again.');
             return;
         }
 
@@ -1309,7 +1309,7 @@
             var data = await resp.json();
 
             if (!resp.ok) {
-                showToast(data.detail || 'Validation failed');
+                showToast(data.detail || 'Could not validate this image. Check that it\u2019s a square PNG.');
                 imageFile = null;
                 imageDataUrl = null;
                 return;
@@ -1328,7 +1328,7 @@
             if (data.has_transparency) {
                 var tBadge = document.createElement('span');
                 tBadge.className = 'badge badge--warn';
-                tBadge.textContent = 'Has transparency';
+                tBadge.textContent = 'Transparent \u2014 iOS will add a background';
                 previewBadges.appendChild(tBadge);
             }
 
@@ -1346,7 +1346,7 @@
             updateGenerateBtn();
 
         } catch (err) {
-            showToast('Connection error');
+            showToast('Can\u2019t reach the server. Is iconforge still running?');
         }
     }
 
@@ -1460,7 +1460,7 @@
             var data = await resp.json();
 
             if (!resp.ok) {
-                showToast(data.detail || 'Generation failed');
+                showToast(data.detail || 'Generation failed. Check your image and try again.');
                 generateBtn.disabled = false;
                 generateBtn.textContent = 'Generate Icons';
                 generateBtn.classList.remove('loading');
@@ -1471,7 +1471,7 @@
             renderResults(data);
 
         } catch (err) {
-            showToast('Connection error');
+            showToast('Can\u2019t reach the server. Is iconforge still running?');
         } finally {
             generateBtn.classList.remove('loading');
             generateBtn.textContent = 'Generate Icons';
@@ -1496,13 +1496,13 @@
             try {
                 var resp = await fetch('/api/open-folder', { method: 'POST' });
                 if (resp.ok) {
-                    showToast('Opened output folder', 'success');
+                    showToast('Icons saved and folder opened', 'success');
                 } else {
                     var errData = await resp.json();
-                    showToast(errData.detail || 'Could not open folder');
+                    showToast(errData.detail || 'Could not open the output folder');
                 }
             } catch (err) {
-                showToast('Connection error');
+                showToast('Can\u2019t reach the server. Is iconforge still running?');
             }
         });
 
