@@ -6,7 +6,25 @@ A local CLI tool that takes one high-quality source image and outputs correctly 
 
 ## Architecture
 
-**Approach: Platform plugin modules.** A core module handles CLI, validation, and image loading. Each platform is a separate module implementing a common `generate(source, output_dir, options)` interface. The core iterates over selected platforms and dispatches.
+**Approach: Platform plugin modules.** A core module handles CLI, validation, and image loading. Each platform is a separate module implementing a common interface. The core iterates over selected platforms and dispatches.
+
+### Platform module interface
+
+```python
+def generate(source: PIL.Image.Image, output_dir: pathlib.Path, options: dict) -> list[pathlib.Path]
+```
+
+- `source`: already-validated PIL Image (square, loaded by core)
+- `output_dir`: the platform-specific subdirectory (e.g., `iconforge-output/ios/`)
+- `options`: dict with keys like `android_bg` (str, hex color or image path). Each platform documents which keys it reads.
+- Returns: list of all files created
+- Errors: raise `IconforgeError` (custom exception in `core.py`) on failure
+
+### Output behavior
+
+- If the output directory already exists, files are overwritten silently
+- Progress: print platform name as each starts (e.g., `Generating iOS icons...`), print file count per platform on completion
+- Invalid `--platforms` values cause an immediate error listing valid options
 
 ## Project Structure
 
@@ -51,15 +69,15 @@ iconforge --source icon.png --platforms ios,android,web --no-prompt
 ```
 
 Flags:
-- `--source` — path to source image (PNG or SVG)
-- `--platforms` — comma-separated list of platforms
+- `--source` — path to source image (PNG only; SVG is a stretch goal)
+- `--platforms` — comma-separated list: ios, android, macos, windows, web, linux
 - `--output-dir` — output directory (default: `./iconforge-output/`)
 - `--android-bg` — Android adaptive icon background color hex or image path (default: `#FFFFFF`)
 - `--no-prompt` — skip interactive prompts (for CI/scripted use)
 
 ### Validation (in `core.py`)
 
-- Confirm file exists, is PNG or SVG
+- Confirm file exists, is PNG (SVG support is a stretch goal)
 - Open with Pillow, confirm square aspect ratio (error if not square)
 - Warn (don't fail) if under 1024×1024
 - Per-platform transparency warnings (iOS doesn't support transparency — warn if alpha channel detected)
@@ -78,17 +96,18 @@ Flags:
 - Output: `android/mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/ic_launcher.png`
 - Sizes: 48, 72, 96, 144, 192px
 - Adaptive icon support:
-  - Foreground: source image with padding
+  - Foreground: source image centered on 108dp canvas, scaled to fit 66dp safe zone (~61% of canvas). At xxxhdpi (432px canvas), the source is scaled to 264px and centered with 84px padding on each side.
   - Background: solid color XML (default `#FFFFFF`) or provided image
   - Config: `ic_launcher.xml`, `ic_launcher_round.xml` in `res/mipmap-anydpi-v26/`
   - Drawable XMLs: `ic_launcher_background.xml`, `ic_launcher_foreground.xml` in `res/drawable/`
+  - Round PNGs (`ic_launcher_round.png`) are NOT generated as separate raster files — adaptive icon XML handles round variants on API 26+. Pre-API-26 devices use the standard square `ic_launcher.png`.
 
 ### macOS
 
 - Output: `macos/AppIcon.appiconset/`
 - Sizes: 16, 32, 128, 256, 512 @1x and @2x
 - Config: `Contents.json` (Xcode asset catalog format)
-- Also generates `AppIcon.icns` via `icnsutil`
+- Also generates `AppIcon.icns` via `icnsutil` (handles icns type mapping automatically from pixel-size PNGs)
 
 ### Windows
 
@@ -100,7 +119,7 @@ Flags:
 
 - Output: `web/`
 - Files: `favicon.ico` (16+32), `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` (180px)
-- Config: `manifest.json` (with icon entries), `browserconfig.xml` (MS tiles), `head-snippet.html` (ready-to-paste `<link>` and `<meta>` tags)
+- Config: `manifest.json` (with icon entries), `browserconfig.xml` (MS tiles with 70x70, 150x150, 310x310 sizes), `head-snippet.html` (ready-to-paste `<link>` and `<meta>` tags)
 
 ### Linux
 
