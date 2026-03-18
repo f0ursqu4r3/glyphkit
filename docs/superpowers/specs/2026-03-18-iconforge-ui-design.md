@@ -14,8 +14,20 @@ A local web UI for iconforge that complements the CLI. Users launch it with `ico
 
 ### New dependencies
 
+Added as optional dependencies under `[project.optional-dependencies] ui = [...]`:
+
 - `fastapi` — API framework
 - `uvicorn` — ASGI server
+
+The `--ui` flag gives a helpful error if these are not installed: `"Web UI requires extra dependencies. Install with: uv pip install -e '.[ui]'"`
+
+### Server binding
+
+The server binds to `127.0.0.1` only (never `0.0.0.0`) to prevent LAN exposure. This is a local-only tool.
+
+### Output directory management
+
+The server manages output internally. Each generation creates a new temp directory via `tempfile.mkdtemp(prefix="iconforge-")`. The previous generation's temp directory is cleaned up when a new generation starts, or when the server shuts down. The user retrieves files via `/api/preview` and `/api/download` — the temp path is an internal detail not exposed to the frontend.
 
 ### API Endpoints
 
@@ -25,6 +37,21 @@ A local web UI for iconforge that complements the CLI. Users launch it with `ico
 | `POST` | `/api/generate` | Upload image + platform selections + options, triggers generation, returns file manifest |
 | `GET` | `/api/preview/{platform}/{path:path}` | Serve a generated icon for in-browser preview |
 | `GET` | `/api/download` | Zip and download the entire output directory |
+| `POST` | `/api/open-folder` | Open the output directory in the native file explorer |
+
+### Error responses
+
+All endpoints return errors as JSON with an appropriate HTTP status:
+
+```json
+{"error": "Image must be square, got 800x600"}
+```
+
+Status codes:
+- `400` — validation errors (non-PNG, non-square, missing fields)
+- `422` — malformed request (bad JSON in platforms field)
+- `413` — upload too large (max 50MB)
+- `500` — unexpected server error
 
 ### `POST /api/validate` request
 
@@ -55,13 +82,18 @@ Response:
     "ios": {
       "file_count": 16,
       "files": [
-        {"name": "Icon-20@1x.png", "size": 20, "path": "ios/AppIcon.appiconset/Icon-20@1x.png"}
+        {"name": "Icon-20@1x.png", "size": 20, "preview_url": "/api/preview/ios/AppIcon.appiconset/Icon-20@1x.png"}
       ]
     }
-  },
-  "output_dir": "/absolute/path/to/iconforge-output"
+  }
 }
 ```
+
+Each file entry includes a ready-to-use `preview_url`. No internal paths are exposed to the frontend.
+
+### `POST /api/open-folder`
+
+Opens the current output directory in the native file explorer. Copies generated files to a persistent location (`./iconforge-output/` in CWD) first, then opens it with `open` (macOS), `xdg-open` (Linux), or `explorer` (Windows).
 
 ### `GET /api/preview/{platform}/{path:path}`
 
@@ -100,7 +132,7 @@ Creates a zip of the entire output directory and streams it as a download.
 6. **Generate button** — Full-width, gradient accent background, white text, 48px tall. Hover: slight scale + glow. Disabled state when no image or no platforms selected. During generation: shows progress text ("Generating iOS icons..." cycling through platforms).
 
 7. **Results section** — Appears after generation with a slide-down animation. Contains:
-   - **Summary bar** — total file count, output directory path (click to copy), "Download ZIP" button, "Open Folder" button
+   - **Summary bar** — total file count, "Download ZIP" button, "Open Folder" button (calls `POST /api/open-folder`)
    - **Platform cards** — one per generated platform. Glass panel showing: platform name, file count, expand/collapse chevron. Collapsed by default.
    - **Expanded view** — icon grid inside the card. Shows each generated icon as a thumbnail at its actual size (capped at 128px display), with pixel dimensions label below. Icons on subtle dark background. Scrollable if many icons.
 
