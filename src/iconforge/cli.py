@@ -29,6 +29,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--no-prompt", action="store_true", help="Skip interactive prompts"
     )
+    parser.add_argument("--ui", action="store_true", help="Launch web UI")
     return parser.parse_args(argv)
 
 
@@ -88,6 +89,19 @@ def _interactive_prompts() -> tuple[pathlib.Path, list[str], dict]:
 def main() -> None:
     """Main entrypoint."""
     args = parse_args()
+
+    if args.ui:
+        try:
+            from iconforge.web.server import start_server
+        except ImportError:
+            print(
+                "Error: Web UI requires extra dependencies. "
+                "Install with: uv pip install -e '.[ui]'",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        start_server()
+        return
 
     if args.no_prompt:
         if not args.source or not args.platforms:
