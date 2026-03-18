@@ -28,7 +28,7 @@ def generate(source: PIL.Image.Image, output_dir: pathlib.Path, options: dict) -
 
 ## Project Structure
 
-```
+```text
 iconforge/
   pyproject.toml
   src/
@@ -64,11 +64,12 @@ iconforge/
 
 ### Scripted mode
 
-```
+```text
 iconforge --source icon.png --platforms ios,android,web --no-prompt
 ```
 
 Flags:
+
 - `--source` — path to source image (PNG only; SVG is a stretch goal)
 - `--platforms` — comma-separated list: ios, android, macos, windows, web, linux
 - `--output-dir` — output directory (default: `./iconforge-output/`)
@@ -133,7 +134,7 @@ Flags:
 
 ## Output Structure
 
-```
+```text
 iconforge-output/
   ios/
     AppIcon.appiconset/
