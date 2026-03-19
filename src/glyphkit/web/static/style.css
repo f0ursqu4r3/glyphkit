@@ -36,8 +36,6 @@
     --space-xl: 20px;
     --space-2xl: 24px;
     --space-3xl: 32px;
-    --space-4xl: 40px;
-    --space-5xl: 48px;
 
     /* Radii */
     --radius-sm: 4px;
@@ -49,7 +47,6 @@
     /* Motion */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --transition: 150ms var(--ease-out);
-    --transition-slow: 300ms var(--ease-out);
 
     /* Focus */
     --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-1);
