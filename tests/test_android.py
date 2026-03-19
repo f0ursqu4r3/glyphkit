@@ -6,7 +6,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.platforms.android import generate, DENSITIES
+from glyphkit.platforms.android import generate, DENSITIES
 
 
 class TestAndroidGenerate:

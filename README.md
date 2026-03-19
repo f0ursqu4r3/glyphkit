@@ -1,4 +1,4 @@
-# iconforge
+# glyphkit
 
 Universal app icon generator. Takes one source PNG and outputs correctly sized icons + platform config files for iOS, Android, macOS, Windows, Web/PWA, and Linux.
 
@@ -13,7 +13,7 @@ uv pip install -e .
 ### Interactive
 
 ```bash
-iconforge
+glyphkit
 ```
 
 Prompts you to select platforms and source image.
@@ -21,7 +21,7 @@ Prompts you to select platforms and source image.
 ### Scripted
 
 ```bash
-iconforge --source icon.png --platforms ios,android,web --no-prompt
+glyphkit --source icon.png --platforms ios,android,web --no-prompt
 ```
 
 ### All flags
@@ -30,14 +30,14 @@ iconforge --source icon.png --platforms ios,android,web --no-prompt
 |---|---|---|
 | `--source` | — | Path to source PNG (1024×1024 recommended) |
 | `--platforms` | — | Comma-separated: ios, android, macos, windows, web, linux |
-| `--output-dir` | `./iconforge-output` | Output directory |
+| `--output-dir` | `./glyphkit-output` | Output directory |
 | `--android-bg` | `#FFFFFF` | Android adaptive icon background color |
 | `--no-prompt` | false | Skip interactive prompts (for CI) |
 
 ## Output
 
 ```
-iconforge-output/
+glyphkit-output/
   ios/          → AppIcon.appiconset with Contents.json
   android/      → mipmap PNGs + adaptive icon XMLs
   macos/        → AppIcon.appiconset + AppIcon.icns

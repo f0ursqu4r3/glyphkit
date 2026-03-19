@@ -9,8 +9,8 @@ from PIL import Image
 from PIL.Image import Resampling
 
 
-class IconforgeError(Exception):
-    """Base exception for iconforge errors."""
+class GlyphkitError(Exception):
+    """Base exception for glyphkit errors."""
 
 
 def resize_image(source: Image.Image, size: int) -> Image.Image:
@@ -21,15 +21,15 @@ def resize_image(source: Image.Image, size: int) -> Image.Image:
 def load_and_validate_image(path: pathlib.Path) -> Image.Image:
     """Load image, validate it is square PNG. Warn if under 1024×1024."""
     if not path.exists():
-        raise IconforgeError(f"File not found: {path}")
+        raise GlyphkitError(f"File not found: {path}")
     if path.suffix.lower() != ".png":
-        raise IconforgeError(
+        raise GlyphkitError(
             f"Unsupported format: {path.suffix}. Only PNG is supported."
         )
     img = Image.open(path)
     w, h = img.size
     if w != h:
-        raise IconforgeError(f"Image must be square, got {w}×{h}")
+        raise GlyphkitError(f"Image must be square, got {w}×{h}")
     if w < 1024:
         warnings.warn(
             f"Source image is {w}×{h}, 1024×1024 recommended for best quality"

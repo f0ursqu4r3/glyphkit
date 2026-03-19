@@ -8,7 +8,7 @@ import pathlib
 import icnsutil
 from PIL import Image
 
-from iconforge.core import resize_image
+from glyphkit.core import resize_image
 
 # (filename, base_size, scale)
 SIZES: list[tuple[str, int, int]] = [
@@ -55,7 +55,7 @@ def generate(
 
     contents = {
         "images": images_entries,
-        "info": {"author": "iconforge", "version": 1},
+        "info": {"author": "glyphkit", "version": 1},
     }
     contents_path = appiconset / "Contents.json"
     contents_path.write_text(json.dumps(contents, indent=2) + "\n")

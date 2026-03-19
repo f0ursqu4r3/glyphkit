@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pathlib
 
-from iconforge.cli import parse_args, run
+from glyphkit.cli import parse_args, run
 
 
 class TestParseArgs:
@@ -18,7 +18,7 @@ class TestParseArgs:
 
     def test_default_output_dir(self) -> None:
         args = parse_args(["--source", "icon.png", "--platforms", "ios", "--no-prompt"])
-        assert args.output_dir == "./iconforge-output"
+        assert args.output_dir == "./glyphkit-output"
 
     def test_custom_output_dir(self) -> None:
         args = parse_args(
@@ -46,9 +46,9 @@ class TestRun:
         self, square_1024: pathlib.Path, tmp_path: pathlib.Path
     ) -> None:
         import pytest
-        from iconforge.core import IconforgeError
+        from glyphkit.core import GlyphkitError
 
-        with pytest.raises(IconforgeError, match="Invalid platform"):
+        with pytest.raises(GlyphkitError, match="Invalid platform"):
             run(
                 source=square_1024, platforms=["bogus"], output_dir=tmp_path, options={}
             )

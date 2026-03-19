@@ -6,7 +6,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.core import resize_image
+from glyphkit.core import resize_image
 
 # (density_name, icon_size_px)
 DENSITIES: list[tuple[str, int]] = [

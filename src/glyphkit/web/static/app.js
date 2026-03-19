@@ -264,7 +264,7 @@
             updateGenerateBtn();
 
         } catch (err) {
-            showToast('Can\u2019t reach the server. Is iconforge still running?');
+            showToast('Can\u2019t reach the server. Is glyphkit still running?');
         }
     }
 
@@ -400,7 +400,7 @@
             renderResults(data);
 
         } catch (err) {
-            showToast('Can\u2019t reach the server. Is iconforge still running?');
+            showToast('Can\u2019t reach the server. Is glyphkit still running?');
             generateBtn.classList.remove('loading');
             generateBtn.textContent = 'Generate Icons';
             updateGenerateBtn();
@@ -416,7 +416,7 @@
         // Summary
         summaryBar.innerHTML = '<div class="summary-bar__text"><strong>' + totalFiles + ' files</strong> generated across ' + Object.keys(platforms).length + ' platform' + (Object.keys(platforms).length > 1 ? 's' : '') + '</div>' +
             '<div class="summary-bar__actions">' +
-            '<a href="/api/download" download="iconforge-output.zip" class="btn-outline"><i data-lucide="download" size="14"></i> Download ZIP</a>' +
+            '<a href="/api/download" download="glyphkit-output.zip" class="btn-outline"><i data-lucide="download" size="14"></i> Download ZIP</a>' +
             '<button class="btn-outline" id="openFolderBtn"><i data-lucide="folder-open" size="14"></i> Open Folder</button>' +
             '</div>';
 
@@ -430,7 +430,7 @@
                     showToast(errData.detail || 'Could not open the output folder');
                 }
             } catch (err) {
-                showToast('Can\u2019t reach the server. Is iconforge still running?');
+                showToast('Can\u2019t reach the server. Is glyphkit still running?');
             }
         });
 

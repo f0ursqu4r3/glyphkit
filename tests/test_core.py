@@ -8,8 +8,8 @@ import warnings
 import pytest
 from PIL import Image
 
-from iconforge.core import (
-    IconforgeError,
+from glyphkit.core import (
+    GlyphkitError,
     has_transparency,
     load_and_validate_image,
     resize_image,
@@ -22,17 +22,17 @@ class TestLoadAndValidateImage:
         assert img.size == (1024, 1024)
 
     def test_rejects_missing_file(self, tmp_path: pathlib.Path) -> None:
-        with pytest.raises(IconforgeError, match="File not found"):
+        with pytest.raises(GlyphkitError, match="File not found"):
             load_and_validate_image(tmp_path / "nope.png")
 
     def test_rejects_non_png(self, tmp_path: pathlib.Path) -> None:
         jpg = tmp_path / "icon.jpg"
         Image.new("RGB", (100, 100)).save(jpg)
-        with pytest.raises(IconforgeError, match="Unsupported format"):
+        with pytest.raises(GlyphkitError, match="Unsupported format"):
             load_and_validate_image(jpg)
 
     def test_rejects_non_square(self, non_square: pathlib.Path) -> None:
-        with pytest.raises(IconforgeError, match="must be square"):
+        with pytest.raises(GlyphkitError, match="must be square"):
             load_and_validate_image(non_square)
 
     def test_warns_under_1024(self, square_512: pathlib.Path) -> None:

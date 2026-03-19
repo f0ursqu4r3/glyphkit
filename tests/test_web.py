@@ -7,7 +7,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.platforms.web import generate
+from glyphkit.platforms.web import generate
 
 
 class TestWebGenerate:

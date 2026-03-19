@@ -7,7 +7,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.platforms.ios import generate, SIZES
+from glyphkit.platforms.ios import generate, SIZES
 
 
 class TestIOSGenerate:
@@ -26,7 +26,7 @@ class TestIOSGenerate:
         data = json.loads(contents.read_text())
         assert "images" in data
         assert data["info"]["version"] == 1
-        assert data["info"]["author"] == "iconforge"
+        assert data["info"]["author"] == "glyphkit"
 
     def test_creates_all_icon_pngs(
         self, source_image: Image.Image, tmp_path: pathlib.Path

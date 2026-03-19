@@ -6,7 +6,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.platforms.windows import generate, ICO_SIZES
+from glyphkit.platforms.windows import generate, ICO_SIZES
 
 
 class TestWindowsGenerate:

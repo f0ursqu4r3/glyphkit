@@ -1,4 +1,4 @@
-"""CLI entrypoint for iconforge."""
+"""CLI entrypoint for glyphkit."""
 
 from __future__ import annotations
 
@@ -6,14 +6,14 @@ import argparse
 import pathlib
 import sys
 
-from iconforge.core import IconforgeError, load_and_validate_image
-from iconforge.platforms import PLATFORM_REGISTRY, VALID_PLATFORMS
+from glyphkit.core import GlyphkitError, load_and_validate_image
+from glyphkit.platforms import PLATFORM_REGISTRY, VALID_PLATFORMS
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
-        prog="iconforge",
+        prog="glyphkit",
         description="Universal app icon generator",
     )
     parser.add_argument("--source", help="Path to source PNG image")
@@ -21,7 +21,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--platforms", help="Comma-separated platforms: " + ", ".join(VALID_PLATFORMS)
     )
     parser.add_argument(
-        "--output-dir", default="./iconforge-output", help="Output directory"
+        "--output-dir", default="./glyphkit-output", help="Output directory"
     )
     parser.add_argument(
         "--android-bg", default="#FFFFFF", help="Android adaptive icon background color"
@@ -43,7 +43,7 @@ def run(
     # Validate platforms
     invalid = [p for p in platforms if p not in PLATFORM_REGISTRY]
     if invalid:
-        raise IconforgeError(
+        raise GlyphkitError(
             f"Invalid platform(s): {', '.join(invalid)}. "
             f"Valid platforms: {', '.join(VALID_PLATFORMS)}"
         )
@@ -92,7 +92,7 @@ def main() -> None:
 
     if args.ui:
         try:
-            from iconforge.web.server import start_server
+            from glyphkit.web.server import start_server
         except ImportError:
             print(
                 "Error: Web UI requires extra dependencies. "
@@ -119,7 +119,7 @@ def main() -> None:
     output_dir = pathlib.Path(args.output_dir)
     try:
         run(source=source, platforms=platforms, output_dir=output_dir, options=options)
-    except IconforgeError as e:
+    except GlyphkitError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
     print("Done!")

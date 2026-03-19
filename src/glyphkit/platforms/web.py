@@ -7,7 +7,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.core import resize_image
+from glyphkit.core import resize_image
 
 _PNG_SIZES: dict[str, int] = {
     "icon-192.png": 192,

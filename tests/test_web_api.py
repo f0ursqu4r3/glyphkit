@@ -1,4 +1,4 @@
-"""Tests for iconforge web API endpoints."""
+"""Tests for glyphkit web API endpoints."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from io import BytesIO
 import pytest
 from PIL import Image
 
-from iconforge.web.app import app, _cleanup_output
+from glyphkit.web.app import app, _cleanup_output
 
 pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient

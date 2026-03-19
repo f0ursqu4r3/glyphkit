@@ -1,4 +1,4 @@
-"""Server startup for iconforge web UI."""
+"""Server startup for glyphkit web UI."""
 
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ def start_server() -> None:
 
     port = _find_free_port()
     url = f"http://127.0.0.1:{port}"
-    print(f"iconforge web UI starting at {url}")
+    print(f"glyphkit web UI starting at {url}")
 
     threading.Timer(1.0, lambda: webbrowser.open(url)).start()
 
     uvicorn.run(
-        "iconforge.web.app:app",
+        "glyphkit.web.app:app",
         host="127.0.0.1",
         port=port,
         log_level="warning",

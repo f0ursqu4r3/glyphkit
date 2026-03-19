@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 
+# Output
+glyphkit-output/
+
 # Superpowers
 .superpowers/
 docs/superpowers/

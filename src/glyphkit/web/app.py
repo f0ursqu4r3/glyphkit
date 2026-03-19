@@ -1,4 +1,4 @@
-"""FastAPI application for iconforge web UI."""
+"""FastAPI application for glyphkit web UI."""
 
 from __future__ import annotations
 
@@ -17,8 +17,8 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
-from iconforge.core import has_transparency
-from iconforge.platforms import PLATFORM_REGISTRY, VALID_PLATFORMS
+from glyphkit.core import has_transparency
+from glyphkit.platforms import PLATFORM_REGISTRY, VALID_PLATFORMS
 
 
 @asynccontextmanager
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     _cleanup_output()
 
 
-app = FastAPI(title="iconforge", lifespan=lifespan)
+app = FastAPI(title="glyphkit", lifespan=lifespan)
 
 _current_output_dir: pathlib.Path | None = None
 
@@ -117,7 +117,7 @@ async def generate_icons(
         raise HTTPException(status_code=400, detail=f"Image must be square, got {w}×{h}")
 
     _cleanup_output()
-    _current_output_dir = pathlib.Path(tempfile.mkdtemp(prefix="iconforge-"))
+    _current_output_dir = pathlib.Path(tempfile.mkdtemp(prefix="glyphkit-"))
 
     options = {"android_bg": android_bg}
     result: dict = {"platforms": {}}
@@ -186,7 +186,7 @@ async def download_zip() -> StreamingResponse:
     return StreamingResponse(
         buffer,
         media_type="application/zip",
-        headers={"Content-Disposition": "attachment; filename=iconforge-output.zip"},
+        headers={"Content-Disposition": "attachment; filename=glyphkit-output.zip"},
     )
 
 
@@ -196,7 +196,7 @@ async def open_folder() -> JSONResponse:
     if not _current_output_dir or not _current_output_dir.exists():
         raise HTTPException(status_code=404, detail="No generation output available")
 
-    persistent_dir = pathlib.Path.cwd() / "iconforge-output"
+    persistent_dir = pathlib.Path.cwd() / "glyphkit-output"
     if persistent_dir.exists():
         shutil.rmtree(persistent_dir)
     shutil.copytree(_current_output_dir, persistent_dir)

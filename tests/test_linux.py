@@ -6,7 +6,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.platforms.linux import generate, HICOLOR_SIZES
+from glyphkit.platforms.linux import generate, HICOLOR_SIZES
 
 
 class TestLinuxGenerate:

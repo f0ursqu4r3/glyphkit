@@ -8,7 +8,7 @@ import warnings
 
 from PIL import Image
 
-from iconforge.core import has_transparency, resize_image
+from glyphkit.core import has_transparency, resize_image
 
 # (name, pt_size, scale) tuples
 SIZES: list[tuple[str, float, int]] = [
@@ -66,7 +66,7 @@ def generate(
 
     contents = {
         "images": images_entries,
-        "info": {"author": "iconforge", "version": 1},
+        "info": {"author": "glyphkit", "version": 1},
     }
     contents_path = appiconset / "Contents.json"
     contents_path.write_text(json.dumps(contents, indent=2) + "\n")

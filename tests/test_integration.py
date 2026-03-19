@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pathlib
 
-from iconforge.cli import run
-from iconforge.platforms import VALID_PLATFORMS
+from glyphkit.cli import run
+from glyphkit.platforms import VALID_PLATFORMS
 
 
 class TestFullGeneration:

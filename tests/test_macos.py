@@ -7,7 +7,7 @@ import pathlib
 
 from PIL import Image
 
-from iconforge.platforms.macos import generate, SIZES
+from glyphkit.platforms.macos import generate, SIZES
 
 
 class TestMacOSGenerate:
@@ -24,7 +24,7 @@ class TestMacOSGenerate:
         contents = tmp_path / "AppIcon.appiconset" / "Contents.json"
         data = json.loads(contents.read_text())
         assert "images" in data
-        assert data["info"]["author"] == "iconforge"
+        assert data["info"]["author"] == "glyphkit"
 
     def test_creates_all_pngs(
         self, source_image: Image.Image, tmp_path: pathlib.Path
