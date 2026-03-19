@@ -227,7 +227,7 @@ body::before {
     display: none;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-md);
 }
 
 .drop-zone--has-image .image-preview {
@@ -385,7 +385,7 @@ body::before {
     width: 64px;
     height: 64px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--glass-bg);
 }
 
 .shape-preview__mask img {
@@ -432,7 +432,7 @@ body::before {
 
 /* ── Platform selector ── */
 .section {
-    margin-top: 32px;
+    margin-top: var(--space-3xl);
 }
 
 .section__header {
@@ -694,7 +694,7 @@ body::before {
 
 /* ── Generate button ── */
 .generate-wrap {
-    margin-top: 32px;
+    margin-top: var(--space-3xl);
 }
 
 .generate-btn {
@@ -749,7 +749,7 @@ body::before {
 
 /* ── Results ── */
 .results {
-    margin-top: 32px;
+    margin-top: var(--space-3xl);
     display: none;
 }
 
@@ -770,13 +770,13 @@ body::before {
 }
 
 .summary-bar {
-    padding: 16px 20px;
+    padding: var(--space-lg) var(--space-xl);
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
 }
 
 .summary-bar__text {
@@ -790,7 +790,7 @@ body::before {
 
 .summary-bar__actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-sm);
 }
 
 .btn-outline {
@@ -917,7 +917,7 @@ body::before {
 }
 
 .icon-grid__item--clickable:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--glass-bg-hover);
 }
 
 @keyframes thumbFadeIn {
@@ -1039,7 +1039,7 @@ body::before {
 
 .modal__close:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--glass-bg-hover);
 }
 
 .modal__preview {
@@ -1240,10 +1240,8 @@ body::before {
     .preview-strip__item {
         scroll-snap-align: start;
     }
-    .android-options__inner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--space-md);
+    .adjustments__row {
+        flex-wrap: wrap;
     }
 }
 

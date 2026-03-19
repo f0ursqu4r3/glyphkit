@@ -2,10 +2,10 @@
     'use strict';
 
     // ── State ──
-    let selectedPlatforms = new Set();
-    let imageFile = null;
-    let imageDataUrl = null;
-    let generationResult = null;
+    var selectedPlatforms = new Set();
+    var imageFile = null;
+    var imageDataUrl = null;
+    var generationResult = null;
 
     // ── DOM refs ──
     const dropZone = document.getElementById('dropZone');
