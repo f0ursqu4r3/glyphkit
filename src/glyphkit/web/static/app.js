@@ -26,10 +26,8 @@
     const paddingValue = document.getElementById('paddingValue');
     const bgColor = document.getElementById('bgColor');
     const bgColor2 = document.getElementById('bgColor2');
-    const bgColorEnabled = document.getElementById('bgColorEnabled');
-    const bgGradientToggle = document.getElementById('bgGradientToggle');
-    const bgModeLabel = document.getElementById('bgModeLabel'); // may be null
-    let bgGradientMode = false;
+    const bgModeControl = document.getElementById('bgModeControl');
+    var bgMode = 'none'; // 'none' | 'solid' | 'gradient'
     const generateBtn = document.getElementById('generateBtn');
     const results = document.getElementById('results');
     const summaryBar = document.getElementById('summaryBar');
@@ -261,7 +259,7 @@
         if (!imageDataUrl) return imageDataUrl;
 
         var pct = parseInt(paddingSlider.value, 10);
-        var hasBg = bgColorEnabled.checked;
+        var hasBg = bgMode !== 'none';
         if (pct <= 0 && !hasBg) return imageDataUrl;
 
         var img = new window.Image();
@@ -278,7 +276,7 @@
 
         // Fill background if enabled
         if (hasBg) {
-            if (bgGradientMode) {
+            if (bgMode === 'gradient') {
                 var grad = ctx.createLinearGradient(0, 0, newSize, newSize);
                 grad.addColorStop(0, bgColor.value);
                 grad.addColorStop(1, bgColor2.value);
@@ -422,25 +420,22 @@
         updatePreviews();
     });
 
-    bgColorEnabled.addEventListener('change', function () {
-        var on = bgColorEnabled.checked;
-        bgColor.disabled = !on;
-        bgGradientToggle.style.display = on ? '' : 'none';
-        if (!on) {
-            bgGradientMode = false;
-            bgColor2.style.display = 'none';
-            bgGradientToggle.textContent = 'Gradient';
-            if (bgModeLabel) bgModeLabel.textContent = 'Solid';
-        }
-        updatePreviews();
-    });
+    // Background mode segmented control
+    bgModeControl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.seg-control__btn');
+        if (!btn) return;
+        var mode = btn.dataset.mode;
+        bgMode = mode;
 
-    bgGradientToggle.addEventListener('click', function () {
-        bgGradientMode = !bgGradientMode;
-        bgColor2.style.display = bgGradientMode ? '' : 'none';
-        bgColor2.disabled = !bgGradientMode;
-        bgGradientToggle.textContent = bgGradientMode ? 'Solid' : 'Gradient';
-        if (bgModeLabel) bgModeLabel.textContent = bgGradientMode ? 'Gradient' : 'Solid';
+        // Update active button
+        bgModeControl.querySelectorAll('.seg-control__btn').forEach(function (b) {
+            b.classList.toggle('seg-control__btn--active', b.dataset.mode === mode);
+        });
+
+        // Show/hide color pickers
+        bgColor.style.display = (mode === 'solid' || mode === 'gradient') ? '' : 'none';
+        bgColor2.style.display = mode === 'gradient' ? '' : 'none';
+
         updatePreviews();
     });
 
@@ -466,12 +461,10 @@
         formData.append('platforms', JSON.stringify(Array.from(selectedPlatforms)));
         formData.append('android_bg', androidBg.value);
         formData.append('padding', paddingSlider.value);
-        if (bgColorEnabled.checked) {
-            if (bgGradientMode) {
-                formData.append('bg_color', bgColor.value + ',' + bgColor2.value);
-            } else {
-                formData.append('bg_color', bgColor.value);
-            }
+        if (bgMode === 'gradient') {
+            formData.append('bg_color', bgColor.value + ',' + bgColor2.value);
+        } else if (bgMode === 'solid') {
+            formData.append('bg_color', bgColor.value);
         } else {
             formData.append('bg_color', '');
         }

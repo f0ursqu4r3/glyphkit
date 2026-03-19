@@ -72,13 +72,13 @@
             <div class="adjustments__row">
                 <span class="adjustments__label"><i data-lucide="paint-bucket" size="14"></i> Background</span>
                 <div class="adjustments__controls">
-                    <label class="adjustments__toggle">
-                        <input type="checkbox" id="bgColorEnabled">
-                        <span class="adjustments__toggle-track"></span>
-                    </label>
-                    <input type="color" class="adjustments__color" id="bgColor" value="#FFFFFF" disabled>
-                    <button class="toggle-link" id="bgGradientToggle" style="display:none">Gradient</button>
-                    <input type="color" class="adjustments__color" id="bgColor2" value="#6366f1" disabled style="display:none">
+                    <div class="seg-control" id="bgModeControl">
+                        <button class="seg-control__btn seg-control__btn--active" data-mode="none">None</button>
+                        <button class="seg-control__btn" data-mode="solid">Solid</button>
+                        <button class="seg-control__btn" data-mode="gradient">Gradient</button>
+                    </div>
+                    <input type="color" class="adjustments__color" id="bgColor" value="#FFFFFF" style="display:none">
+                    <input type="color" class="adjustments__color" id="bgColor2" value="#6366f1" style="display:none">
                 </div>
             </div>
             <div class="adjustments__row adjustments__row--android" id="androidOptions" style="display:none">

@@ -522,7 +522,8 @@ body::before {
 .adjustments__row {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: var(--space-lg);
+    min-height: 36px;
 }
 
 .adjustments__row--android {
@@ -538,7 +539,8 @@ body::before {
 .adjustments__label {
     font-size: 13px;
     color: var(--text-secondary);
-    min-width: 100px;
+    width: 110px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: var(--space-sm);
@@ -638,49 +640,35 @@ body::before {
     color: var(--text-dim);
 }
 
-/* Custom toggle switch */
-.adjustments__toggle {
-    position: relative;
-    display: inline-block;
+/* Segmented control */
+.seg-control {
+    display: flex;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    gap: 2px;
+}
+
+.seg-control__btn {
+    padding: 4px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-family: inherit;
     cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap;
 }
 
-.adjustments__toggle input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+.seg-control__btn:hover {
+    color: var(--text-secondary);
 }
 
-.adjustments__toggle-track {
-    display: block;
-    width: 32px;
-    height: 18px;
-    border-radius: 9px;
-    background: var(--glass-border-hover);
-    transition: background var(--transition);
-    position: relative;
-}
-
-.adjustments__toggle-track::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--text-dim);
-    transition: transform var(--transition), background var(--transition);
-}
-
-.adjustments__toggle input:checked + .adjustments__toggle-track {
-    background: var(--accent-1);
-}
-
-.adjustments__toggle input:checked + .adjustments__toggle-track::after {
-    transform: translateX(14px);
-    background: #f8fafc;
+.seg-control__btn--active {
+    background: var(--glass-bg-hover);
+    color: var(--text-primary);
 }
 
 /* ── Generate button ── */
