@@ -43,6 +43,17 @@ def _cleanup_output() -> None:
     _current_output_dir = None
 
 
+def _open_uploaded_image(data: bytes) -> Image.Image:
+    """Open an uploaded image, auto-converting to RGBA."""
+    try:
+        img = Image.open(BytesIO(data))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Could not open image file")
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+    return img
+
+
 @app.post("/api/validate")
 async def validate_image(image: UploadFile = File(...)) -> JSONResponse:
     """Validate an uploaded image and return metadata."""
@@ -50,16 +61,9 @@ async def validate_image(image: UploadFile = File(...)) -> JSONResponse:
     if len(data) > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="Upload too large (max 50MB)")
 
-    try:
-        img = Image.open(BytesIO(data))
-    except Exception:
-        raise HTTPException(status_code=400, detail="Could not open image file")
-
+    img = _open_uploaded_image(data)
     w, h = img.size
     warnings_list: list[str] = []
-
-    if img.format != "PNG":
-        raise HTTPException(status_code=400, detail=f"Unsupported format: {img.format}. Only PNG is supported.")
 
     if w != h:
         raise HTTPException(status_code=400, detail=f"Image must be square, got {w}×{h}")
@@ -105,14 +109,8 @@ async def generate_icons(
     if invalid:
         raise HTTPException(status_code=400, detail=f"Invalid platform(s): {', '.join(invalid)}")
 
-    try:
-        img = Image.open(BytesIO(data))
-    except Exception:
-        raise HTTPException(status_code=400, detail="Could not open image file")
-
+    img = _open_uploaded_image(data)
     w, h = img.size
-    if img.format != "PNG":
-        raise HTTPException(status_code=400, detail=f"Unsupported format: {img.format}. Only PNG is supported.")
     if w != h:
         raise HTTPException(status_code=400, detail=f"Image must be square, got {w}×{h}")
 

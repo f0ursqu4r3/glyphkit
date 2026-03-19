@@ -25,11 +25,24 @@ class TestLoadAndValidateImage:
         with pytest.raises(GlyphkitError, match="File not found"):
             load_and_validate_image(tmp_path / "nope.png")
 
-    def test_rejects_non_png(self, tmp_path: pathlib.Path) -> None:
+    def test_accepts_jpeg(self, tmp_path: pathlib.Path) -> None:
         jpg = tmp_path / "icon.jpg"
-        Image.new("RGB", (100, 100)).save(jpg)
+        Image.new("RGB", (1024, 1024)).save(jpg)
+        img = load_and_validate_image(jpg)
+        assert img.mode == "RGBA"
+        assert img.size == (1024, 1024)
+
+    def test_accepts_webp(self, tmp_path: pathlib.Path) -> None:
+        webp = tmp_path / "icon.webp"
+        Image.new("RGB", (1024, 1024)).save(webp, "WEBP")
+        img = load_and_validate_image(webp)
+        assert img.mode == "RGBA"
+
+    def test_rejects_unsupported_format(self, tmp_path: pathlib.Path) -> None:
+        bmp = tmp_path / "icon.bmp"
+        Image.new("RGB", (100, 100)).save(bmp)
         with pytest.raises(GlyphkitError, match="Unsupported format"):
-            load_and_validate_image(jpg)
+            load_and_validate_image(bmp)
 
     def test_rejects_non_square(self, non_square: pathlib.Path) -> None:
         with pytest.raises(GlyphkitError, match="must be square"):

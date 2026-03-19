@@ -18,15 +18,34 @@ def resize_image(source: Image.Image, size: int) -> Image.Image:
     return source.resize((size, size), Resampling.LANCZOS)
 
 
+SUPPORTED_FORMATS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+
+
 def load_and_validate_image(path: pathlib.Path) -> Image.Image:
-    """Load image, validate it is square PNG. Warn if under 1024×1024."""
+    """Load image, validate it is square. Auto-converts JPEG/WebP to RGBA.
+
+    Supported formats: PNG, JPEG, WebP, SVG.
+    SVG requires cairosvg — rasterized at 1024×1024 by default.
+    """
     if not path.exists():
         raise GlyphkitError(f"File not found: {path}")
-    if path.suffix.lower() != ".png":
+
+    suffix = path.suffix.lower()
+    if suffix not in SUPPORTED_FORMATS:
         raise GlyphkitError(
-            f"Unsupported format: {path.suffix}. Only PNG is supported."
+            f"Unsupported format: {suffix}. "
+            f"Supported: {', '.join(sorted(SUPPORTED_FORMATS))}"
         )
-    img = Image.open(path)
+
+    if suffix == ".svg":
+        img = _load_svg(path)
+    else:
+        img = Image.open(path)
+
+    # Convert to RGBA for consistent processing
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+
     w, h = img.size
     if w != h:
         raise GlyphkitError(f"Image must be square, got {w}×{h}")
@@ -35,6 +54,25 @@ def load_and_validate_image(path: pathlib.Path) -> Image.Image:
             f"Source image is {w}×{h}, 1024×1024 recommended for best quality"
         )
     return img
+
+
+def _load_svg(path: pathlib.Path, size: int = 1024) -> Image.Image:
+    """Rasterize SVG to a PIL Image at the given size."""
+    try:
+        import cairosvg
+    except ImportError:
+        raise GlyphkitError(
+            "SVG support requires cairosvg. Install with: "
+            "uv pip install cairosvg"
+        )
+    from io import BytesIO
+
+    png_data = cairosvg.svg2png(
+        url=str(path),
+        output_width=size,
+        output_height=size,
+    )
+    return Image.open(BytesIO(png_data))
 
 
 def has_transparency(image: Image.Image) -> bool:

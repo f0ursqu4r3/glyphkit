@@ -169,8 +169,8 @@
 
     // ── Handle file selection ──
     function handleFile(file) {
-        if (!file.type.match(/^image\/png/)) {
-            showToast('Only PNG files are supported. Convert your image to PNG and try again.');
+        if (!file.type.match(/^image\/(png|jpeg|webp|svg\+xml)$/)) {
+            showToast('Unsupported format. Use PNG, JPEG, WebP, or SVG.');
             return;
         }
 
@@ -195,7 +195,7 @@
             var data = await resp.json();
 
             if (!resp.ok) {
-                showToast(data.detail || 'Could not validate this image. Check that it\u2019s a square PNG.');
+                showToast(data.detail || 'Could not validate this image. Check that it\u2019s a square image.');
                 imageFile = null;
                 imageDataUrl = null;
                 return;

@@ -88,12 +88,13 @@ class TestValidateEndpoint:
         assert resp.status_code == 400
         assert "square" in resp.json()["detail"].lower()
 
-    def test_non_png_rejects(self, client: TestClient) -> None:
-        img = Image.new("RGB", (100, 100))
+    def test_accepts_jpeg(self, client: TestClient) -> None:
+        img = Image.new("RGB", (1024, 1024))
         buf = BytesIO()
         img.save(buf, format="JPEG")
         resp = client.post("/api/validate", files={"image": ("icon.jpg", buf.getvalue(), "image/jpeg")})
-        assert resp.status_code == 400
+        assert resp.status_code == 200
+        assert resp.json()["width"] == 1024
 
 
 class TestGenerateEndpoint:

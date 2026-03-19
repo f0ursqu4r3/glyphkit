@@ -16,7 +16,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         prog="glyphkit",
         description="Universal app icon generator",
     )
-    parser.add_argument("--source", help="Path to source PNG image")
+    parser.add_argument("--source", help="Path to source image (PNG, JPEG, WebP, or SVG)")
     parser.add_argument(
         "--platforms", help="Comma-separated platforms: " + ", ".join(VALID_PLATFORMS)
     )
