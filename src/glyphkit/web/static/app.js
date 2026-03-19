@@ -241,9 +241,8 @@
                 });
             }
 
-            // Populate live preview strip
-            populatePreviewStrip();
-            populateShapePreview();
+            // Populate previews (applies current padding)
+            updatePreviews();
             updateGenerateBtn();
 
         } catch (err) {
@@ -251,8 +250,36 @@
         }
     }
 
+    // ── Padded preview generation ──
+    var paddedDataUrl = null;
+
+    function getPaddedDataUrl() {
+        var pct = parseInt(paddingSlider.value, 10);
+        if (!imageDataUrl || pct <= 0) return imageDataUrl;
+
+        var img = new window.Image();
+        img.src = imageDataUrl;
+        var pad = Math.round(img.width * pct / 100);
+        var newSize = img.width + pad * 2;
+        var canvas = document.createElement('canvas');
+        canvas.width = newSize;
+        canvas.height = newSize;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, pad, pad, img.width, img.height);
+        return canvas.toDataURL('image/png');
+    }
+
+    function updatePreviews() {
+        if (!imageDataUrl) return;
+        paddedDataUrl = getPaddedDataUrl();
+        populatePreviewStrip();
+        populateShapePreview();
+    }
+
     // ── Live preview strip ──
     function populatePreviewStrip() {
+        var src = paddedDataUrl || imageDataUrl;
+        if (!src) return;
         previewRow.innerHTML = '';
         PREVIEW_SIZES.forEach(function (size) {
             var item = document.createElement('div');
@@ -265,7 +292,7 @@
             wrap.style.height = (displaySize + 8) + 'px';
 
             var img = document.createElement('img');
-            img.src = imageDataUrl;
+            img.src = src;
             img.width = displaySize;
             img.height = displaySize;
             wrap.appendChild(img);
@@ -283,6 +310,8 @@
 
     // ── Shape preview ──
     function populateShapePreview() {
+        var src = paddedDataUrl || imageDataUrl;
+        if (!src) return;
         shapeRow.innerHTML = '';
         PLATFORM_SHAPES.forEach(function (shape) {
             var item = document.createElement('div');
@@ -292,7 +321,7 @@
             mask.className = 'shape-preview__mask shape-preview__mask--' + shape.cssClass;
 
             var img = document.createElement('img');
-            img.src = imageDataUrl;
+            img.src = src;
             img.alt = shape.label + ' shape';
             mask.appendChild(img);
 
@@ -370,6 +399,7 @@
 
     paddingSlider.addEventListener('input', function () {
         paddingValue.textContent = paddingSlider.value + '%';
+        updatePreviews();
     });
 
     bgColorEnabled.addEventListener('change', function () {
