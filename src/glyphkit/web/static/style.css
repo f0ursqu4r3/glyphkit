@@ -150,12 +150,6 @@ body::before {
     background-clip: text;
 }
 
-.header p {
-    color: var(--text-secondary);
-    font-size: 14px;
-    margin-top: 4px;
-}
-
 /* ── Drop zone ── */
 .drop-zone {
     border: 2px dashed rgba(255, 255, 255, 0.1);
@@ -313,15 +307,6 @@ body::before {
     padding: 20px;
 }
 
-.preview-strip__label {
-    font-size: 12px;
-    font-family: var(--font-mono);
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 16px;
-}
-
 .preview-strip__row {
     display: flex;
     align-items: flex-end;
@@ -440,12 +425,6 @@ body::before {
     font-size: 14px;
     font-weight: 600;
     margin-bottom: 2px;
-}
-
-.platform-card__desc {
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.4;
 }
 
 /* ── Android options ── */
@@ -902,10 +881,6 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 2px;
-}
-
-.modal__meta-item.full-width {
-    grid-column: 1 / -1;
 }
 
 .modal__meta-key {

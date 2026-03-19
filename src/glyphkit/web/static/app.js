@@ -81,48 +81,16 @@
         }
         modalPreview.appendChild(img);
 
-        // Metadata
+        // Metadata — just dimensions and filename
         modalMeta.innerHTML = '';
-        var metaItems = [];
-
         if (file.size > 0) {
-            metaItems.push({ key: 'Dimensions', value: file.size + ' \u00D7 ' + file.size + ' px' });
+            modalMeta.innerHTML += '<div class="modal__meta-item">' +
+                '<span class="modal__meta-key">Size</span>' +
+                '<span class="modal__meta-value">' + file.size + ' \u00D7 ' + file.size + '</span></div>';
         }
-
-        metaItems.push({ key: 'Platform', value: PLATFORM_NAMES[platformName] || platformName });
-        metaItems.push({ key: 'Filename', value: file.name, full: true });
-
-        // File extension info
-        var ext = file.name.split('.').pop().toLowerCase();
-        var formatMap = {
-            png: 'PNG — Portable Network Graphics (lossless)',
-            ico: 'ICO — Windows icon (multi-resolution)',
-            icns: 'ICNS — macOS icon container'
-        };
-        if (formatMap[ext]) {
-            metaItems.push({ key: 'Format', value: formatMap[ext], full: true });
-        }
-
-        // Usage hint per platform
-        var usageMap = {
-            ios: 'Add to Xcode asset catalog (AppIcon.appiconset)',
-            android: 'Place in res/mipmap-* directories',
-            macos: 'Add to Xcode asset catalog or use .icns directly',
-            windows: 'Set as application icon in project properties',
-            web: 'Reference in HTML <head> or manifest.json',
-            linux: 'Install to /usr/share/icons/hicolor/'
-        };
-        if (usageMap[platformName]) {
-            metaItems.push({ key: 'Usage', value: usageMap[platformName], full: true });
-        }
-
-        metaItems.forEach(function (m) {
-            var item = document.createElement('div');
-            item.className = 'modal__meta-item' + (m.full ? ' full-width' : '');
-            item.innerHTML = '<span class="modal__meta-key">' + m.key + '</span>' +
-                '<span class="modal__meta-value">' + m.value + '</span>';
-            modalMeta.appendChild(item);
-        });
+        modalMeta.innerHTML += '<div class="modal__meta-item">' +
+            '<span class="modal__meta-key">File</span>' +
+            '<span class="modal__meta-value">' + file.name + '</span></div>';
 
         // Show
         previewModal.style.display = 'flex';
