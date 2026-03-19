@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0a0a0f">
     <title>iconforge</title>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
     <style>
         :root {
             /* Colors */
@@ -56,8 +56,9 @@
             --radius-drop: 16px;
 
             /* Motion */
-            --transition: 150ms ease;
-            --transition-slow: 300ms ease;
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition: 150ms var(--ease-out);
+            --transition-slow: 300ms var(--ease-out);
 
             /* Focus */
             --focus-ring: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--accent-1);
@@ -83,6 +84,15 @@
         :focus-visible {
             outline: none;
             box-shadow: var(--focus-ring);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         /* Subtle background gradient */
@@ -167,7 +177,7 @@
             border-color: var(--accent-1);
             box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px rgba(99, 102, 241, 0.03);
             background: var(--accent-faint);
-            animation: borderPulse 1.5s ease-in-out infinite;
+            animation: borderPulse 1.5s var(--ease-out) infinite;
         }
 
         @keyframes borderPulse {
@@ -237,10 +247,10 @@
         .badge {
             font-family: var(--font-mono);
             font-size: 12px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: var(--space-xs) 10px;
+            border-radius: var(--radius-md);
+            background: var(--glass-bg-hover);
+            border: 1px solid var(--glass-border);
             color: var(--text-secondary);
         }
 
@@ -268,7 +278,7 @@
             overflow: hidden;
             max-height: 0;
             opacity: 0;
-            transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease;
+            transition: max-height 400ms var(--ease-out), opacity 300ms var(--ease-out), margin 300ms var(--ease-out);
         }
 
         .preview-strip.visible {
@@ -417,7 +427,7 @@
             overflow: hidden;
             max-height: 0;
             opacity: 0;
-            transition: max-height 300ms ease, opacity 200ms ease, margin 200ms ease, padding 200ms ease;
+            transition: max-height 300ms var(--ease-out), opacity 200ms var(--ease-out), margin 200ms var(--ease-out), padding 200ms var(--ease-out);
         }
 
         .android-options.visible {
@@ -486,7 +496,7 @@
             border: none;
             border-radius: var(--radius-btn);
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: #fff;
+            color: #f8fafc;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
@@ -512,7 +522,7 @@
         }
 
         .generate-btn.loading {
-            animation: btnPulse 1.5s ease-in-out infinite;
+            animation: btnPulse 1.5s var(--ease-out) infinite;
         }
 
         @keyframes btnPulse {
@@ -528,7 +538,7 @@
 
         .results.visible {
             display: block;
-            animation: slideDown 400ms ease;
+            animation: slideDown 400ms var(--ease-out);
         }
 
         @keyframes slideDown {
@@ -576,7 +586,7 @@
             font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            transition: background var(--transition), border-color var(--transition);
+            transition: background var(--transition), border-color var(--transition), transform var(--transition);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -589,13 +599,17 @@
             border-color: var(--accent-outline-hover);
         }
 
+        .btn-outline:active {
+            transform: scale(0.97);
+        }
+
         /* Platform result cards */
         .result-card {
             margin-bottom: 8px;
             overflow: hidden;
             opacity: 0;
             transform: translateY(8px);
-            animation: cardFadeIn 300ms ease forwards;
+            animation: cardFadeIn 300ms var(--ease-out) forwards;
         }
 
         @keyframes cardFadeIn {
@@ -615,7 +629,7 @@
         }
 
         .result-card__header:hover {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--glass-bg);
         }
 
         .result-card__left {
@@ -632,9 +646,9 @@
         .result-card__count {
             font-family: var(--font-mono);
             font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.06);
+            padding: 2px var(--space-sm);
+            border-radius: var(--radius-sm);
+            background: var(--glass-bg-hover);
             color: var(--text-dim);
         }
 
@@ -651,7 +665,7 @@
         .result-card__body {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 300ms ease;
+            transition: max-height 300ms var(--ease-out);
         }
 
         .result-card.expanded .result-card__body {
@@ -675,7 +689,7 @@
             border-radius: var(--radius-btn);
             background: rgba(0, 0, 0, 0.2);
             opacity: 0;
-            animation: thumbFadeIn 200ms ease forwards;
+            animation: thumbFadeIn 200ms var(--ease-out) forwards;
             aspect-ratio: 1;
             overflow: hidden;
             transition: background var(--transition), border-color var(--transition);
@@ -745,7 +759,7 @@
             justify-content: center;
             padding: var(--space-2xl);
             opacity: 0;
-            transition: opacity 200ms ease;
+            transition: opacity 200ms var(--ease-out);
             cursor: pointer;
         }
 
@@ -766,7 +780,7 @@
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
             cursor: default;
             transform: scale(0.95) translateY(8px);
-            transition: transform 200ms ease;
+            transition: transform 200ms var(--ease-out);
         }
 
         .modal-overlay.visible .modal {
@@ -894,7 +908,7 @@
             font-size: 14px;
             max-width: 380px;
             pointer-events: auto;
-            animation: toastIn 300ms ease;
+            animation: toastIn 300ms var(--ease-out);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
@@ -903,7 +917,7 @@
         }
 
         .toast.dismissing {
-            animation: toastOut 200ms ease forwards;
+            animation: toastOut 200ms var(--ease-out) forwards;
         }
 
         @keyframes toastIn {
