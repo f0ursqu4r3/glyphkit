@@ -103,6 +103,21 @@ class TestApplyBackground:
         assert tl[0] > tl[2]  # More red than blue at top-left
         assert br[2] > br[0]  # More blue than red at bottom-right
 
+    def test_radial_gradient(self) -> None:
+        img = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        result = apply_background(img, "#FF0000,#0000FF", gradient_type="radial")
+        center = result.getpixel((50, 50))
+        edge = result.getpixel((0, 0))
+        assert center[0] > edge[0]  # Center more red (c1)
+
+    def test_horizontal_gradient(self) -> None:
+        img = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        result = apply_background(img, "#FF0000,#0000FF", gradient_dir="to-right")
+        left = result.getpixel((0, 50))
+        right = result.getpixel((99, 50))
+        assert left[0] > right[0]  # Left more red
+        assert right[2] > left[2]  # Right more blue
+
 
 class TestHasTransparency:
     def test_opaque_image(self) -> None:

@@ -28,7 +28,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--android-bg", default="#FFFFFF", help="Android adaptive icon background color"
     )
     parser.add_argument("--padding", type=int, default=0, help="Padding percentage (0-50)")
-    parser.add_argument("--bg-color", default="", help="Background fill color (hex, e.g. #FFFFFF)")
+    parser.add_argument("--bg-color", default="", help="Background fill color (hex, or hex,hex for gradient)")
+    parser.add_argument("--bg-gradient-type", default="linear", choices=["linear", "radial"], help="Gradient type")
+    parser.add_argument("--bg-gradient-dir", default="to-br", choices=["to-right", "to-br", "to-bottom", "to-bl"], help="Gradient direction")
     parser.add_argument(
         "--no-prompt", action="store_true", help="Skip interactive prompts"
     )
@@ -65,7 +67,11 @@ def run(
 
     bg_color = options.get("bg_color", "")
     if bg_color:
-        img = apply_background(img, bg_color)
+        img = apply_background(
+            img, bg_color,
+            gradient_type=options.get("bg_gradient_type", "linear"),
+            gradient_dir=options.get("bg_gradient_dir", "to-br"),
+        )
 
     total_files = 0
     for platform_name in platforms:
@@ -163,6 +169,8 @@ def main() -> None:
             "android_bg": get_option(config, "android_bg", args.android_bg, "#FFFFFF"),
             "padding": get_option(config, "padding", args.padding, 0),
             "bg_color": get_option(config, "bg_color", args.bg_color, ""),
+            "bg_gradient_type": get_option(config, "bg_gradient_type", args.bg_gradient_type, "linear"),
+            "bg_gradient_dir": get_option(config, "bg_gradient_dir", args.bg_gradient_dir, "to-br"),
         }
         if not args.platforms and "platforms" in config:
             platforms = (

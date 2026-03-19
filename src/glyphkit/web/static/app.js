@@ -27,7 +27,12 @@
     const bgColor = document.getElementById('bgColor');
     const bgColor2 = document.getElementById('bgColor2');
     const bgModeControl = document.getElementById('bgModeControl');
+    const gradTypeControl = document.getElementById('gradTypeControl');
+    const gradDirControl = document.getElementById('gradDirControl');
+    const gradientOptions = document.getElementById('gradientOptions');
     var bgMode = 'none'; // 'none' | 'solid' | 'gradient'
+    var gradType = 'linear'; // 'linear' | 'radial'
+    var gradDir = 'to-br'; // 'to-right' | 'to-br' | 'to-bottom' | 'to-bl'
     const generateBtn = document.getElementById('generateBtn');
     const results = document.getElementById('results');
     const summaryBar = document.getElementById('summaryBar');
@@ -277,7 +282,18 @@
         // Fill background if enabled
         if (hasBg) {
             if (bgMode === 'gradient') {
-                var grad = ctx.createLinearGradient(0, 0, newSize, newSize);
+                var grad;
+                if (gradType === 'radial') {
+                    var cx = newSize / 2, cy = newSize / 2, r = newSize * 0.7;
+                    grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+                } else {
+                    var coords;
+                    if (gradDir === 'to-right')  coords = [0, 0, newSize, 0];
+                    else if (gradDir === 'to-bottom') coords = [0, 0, 0, newSize];
+                    else if (gradDir === 'to-bl') coords = [newSize, 0, 0, newSize];
+                    else /* to-br */ coords = [0, 0, newSize, newSize];
+                    grad = ctx.createLinearGradient(coords[0], coords[1], coords[2], coords[3]);
+                }
                 grad.addColorStop(0, bgColor.value);
                 grad.addColorStop(1, bgColor2.value);
                 ctx.fillStyle = grad;
@@ -432,10 +448,35 @@
             b.classList.toggle('seg-control__btn--active', b.dataset.mode === mode);
         });
 
-        // Show/hide color pickers
+        // Show/hide color pickers and gradient options
         bgColor.style.display = (mode === 'solid' || mode === 'gradient') ? '' : 'none';
         bgColor2.style.display = mode === 'gradient' ? '' : 'none';
+        gradientOptions.style.display = mode === 'gradient' ? 'flex' : 'none';
 
+        updatePreviews();
+    });
+
+    // Gradient type (linear/radial)
+    gradTypeControl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.seg-control__btn');
+        if (!btn) return;
+        gradType = btn.dataset.type;
+        gradTypeControl.querySelectorAll('.seg-control__btn').forEach(function (b) {
+            b.classList.toggle('seg-control__btn--active', b.dataset.type === gradType);
+        });
+        // Hide direction control for radial
+        gradDirControl.style.display = gradType === 'radial' ? 'none' : '';
+        updatePreviews();
+    });
+
+    // Gradient direction
+    gradDirControl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.seg-control__btn');
+        if (!btn) return;
+        gradDir = btn.dataset.dir;
+        gradDirControl.querySelectorAll('.seg-control__btn').forEach(function (b) {
+            b.classList.toggle('seg-control__btn--active', b.dataset.dir === gradDir);
+        });
         updatePreviews();
     });
 
@@ -463,6 +504,8 @@
         formData.append('padding', paddingSlider.value);
         if (bgMode === 'gradient') {
             formData.append('bg_color', bgColor.value + ',' + bgColor2.value);
+            formData.append('bg_gradient_type', gradType);
+            formData.append('bg_gradient_dir', gradDir);
         } else if (bgMode === 'solid') {
             formData.append('bg_color', bgColor.value);
         } else {

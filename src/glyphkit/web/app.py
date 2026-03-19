@@ -91,6 +91,8 @@ async def generate_icons(
     android_bg: str = Form("#FFFFFF"),
     padding: int = Form(0),
     bg_color: str = Form(""),
+    bg_gradient_type: str = Form("linear"),
+    bg_gradient_dir: str = Form("to-br"),
 ) -> JSONResponse:
     """Generate icons for selected platforms."""
     global _current_output_dir
@@ -120,7 +122,7 @@ async def generate_icons(
     if padding_val > 0:
         img = apply_padding(img, padding_val)
     if bg_color:
-        img = apply_background(img, bg_color)
+        img = apply_background(img, bg_color, gradient_type=bg_gradient_type, gradient_dir=bg_gradient_dir)
 
     _cleanup_output()
     _current_output_dir = pathlib.Path(tempfile.mkdtemp(prefix="glyphkit-"))

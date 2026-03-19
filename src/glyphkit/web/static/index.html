@@ -81,6 +81,21 @@
                     <input type="color" class="adjustments__color" id="bgColor2" value="#6366f1" style="display:none">
                 </div>
             </div>
+            <div class="adjustments__row adjustments__row--gradient" id="gradientOptions" style="display:none">
+                <span class="adjustments__label"></span>
+                <div class="adjustments__controls">
+                    <div class="seg-control" id="gradTypeControl">
+                        <button class="seg-control__btn seg-control__btn--active" data-type="linear">Linear</button>
+                        <button class="seg-control__btn" data-type="radial">Radial</button>
+                    </div>
+                    <div class="seg-control" id="gradDirControl">
+                        <button class="seg-control__btn" data-dir="to-right" title="Left → Right">→</button>
+                        <button class="seg-control__btn seg-control__btn--active" data-dir="to-br" title="Top-left → Bottom-right">↘</button>
+                        <button class="seg-control__btn" data-dir="to-bottom" title="Top → Bottom">↓</button>
+                        <button class="seg-control__btn" data-dir="to-bl" title="Top-right → Bottom-left">↙</button>
+                    </div>
+                </div>
+            </div>
             <div class="adjustments__row adjustments__row--android" id="androidOptions" style="display:none">
                 <span class="adjustments__label"><i data-lucide="tablet-smartphone" size="14"></i> Android bg</span>
                 <div class="adjustments__controls">
