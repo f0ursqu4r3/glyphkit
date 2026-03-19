@@ -98,6 +98,26 @@
         </div>
     </div>
 
+    <!-- Options -->
+    <div class="options-panel glass" id="optionsPanel">
+        <div class="options-panel__inner">
+            <div class="options-panel__row">
+                <span class="options-panel__label">Padding</span>
+                <input type="range" id="paddingSlider" min="0" max="50" value="0" class="options-panel__slider">
+                <span class="options-panel__value" id="paddingValue">0%</span>
+            </div>
+            <div class="options-panel__row">
+                <span class="options-panel__label">Background</span>
+                <div class="options-panel__color-wrap">
+                    <input type="color" class="options-panel__color-input" id="bgColor" value="#FFFFFF" disabled>
+                    <label class="options-panel__checkbox">
+                        <input type="checkbox" id="bgColorEnabled"> Fill
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Generate button -->
     <div class="generate-wrap entrance entrance-4">
         <button class="generate-btn" id="generateBtn" disabled>Generate Icons</button>

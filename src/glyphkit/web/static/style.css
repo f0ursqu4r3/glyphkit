@@ -488,6 +488,112 @@ body::before {
     color: var(--text-secondary);
 }
 
+/* ── Options panel ── */
+.options-panel {
+    margin-top: 12px;
+}
+
+.options-panel__inner {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.options-panel__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.options-panel__label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    min-width: 80px;
+}
+
+.options-panel__slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--glass-border-hover);
+    border-radius: 2px;
+    outline: none;
+}
+
+.options-panel__slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-1);
+    cursor: pointer;
+}
+
+.options-panel__slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-1);
+    cursor: pointer;
+    border: none;
+}
+
+.options-panel__value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    min-width: 32px;
+    text-align: right;
+}
+
+.options-panel__color-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.options-panel__color-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--glass-border);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+
+.options-panel__color-input:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.options-panel__color-input::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+.options-panel__color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
+}
+
+.options-panel__checkbox {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.options-panel__checkbox input {
+    accent-color: var(--accent-1);
+}
+
 /* ── Generate button ── */
 .generate-wrap {
     margin-top: 32px;

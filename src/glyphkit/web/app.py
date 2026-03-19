@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
-from glyphkit.core import has_transparency
+from glyphkit.core import apply_background, apply_padding, has_transparency
 from glyphkit.platforms import PLATFORM_REGISTRY, VALID_PLATFORMS
 
 
@@ -89,6 +89,8 @@ async def generate_icons(
     image: UploadFile = File(...),
     platforms: str = Form(...),
     android_bg: str = Form("#FFFFFF"),
+    padding: int = Form(0),
+    bg_color: str = Form(""),
 ) -> JSONResponse:
     """Generate icons for selected platforms."""
     global _current_output_dir
@@ -114,10 +116,16 @@ async def generate_icons(
     if w != h:
         raise HTTPException(status_code=400, detail=f"Image must be square, got {w}×{h}")
 
+    padding_val = max(0, min(50, padding))
+    if padding_val > 0:
+        img = apply_padding(img, padding_val)
+    if bg_color:
+        img = apply_background(img, bg_color)
+
     _cleanup_output()
     _current_output_dir = pathlib.Path(tempfile.mkdtemp(prefix="glyphkit-"))
 
-    options = {"android_bg": android_bg}
+    options = {"android_bg": android_bg, "padding": padding, "bg_color": bg_color}
     result: dict = {"platforms": {}}
 
     for platform_name in platform_list:

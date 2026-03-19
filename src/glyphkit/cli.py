@@ -26,6 +26,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--android-bg", default="#FFFFFF", help="Android adaptive icon background color"
     )
+    parser.add_argument("--padding", type=int, default=0, help="Padding percentage (0-50)")
+    parser.add_argument("--bg-color", default="", help="Background fill color (hex, e.g. #FFFFFF)")
     parser.add_argument(
         "--no-prompt", action="store_true", help="Skip interactive prompts"
     )
@@ -48,7 +50,17 @@ def run(
             f"Valid platforms: {', '.join(VALID_PLATFORMS)}"
         )
 
+    from glyphkit.core import apply_background, apply_padding
+
     img = load_and_validate_image(source)
+
+    padding = options.get("padding", 0)
+    if padding:
+        img = apply_padding(img, padding)
+
+    bg_color = options.get("bg_color", "")
+    if bg_color:
+        img = apply_background(img, bg_color)
 
     for platform_name in platforms:
         print(f"Generating {platform_name} icons...")
@@ -75,7 +87,7 @@ def _interactive_prompts() -> tuple[pathlib.Path, list[str], dict]:
         print("No source image provided.")
         sys.exit(1)
 
-    options: dict = {}
+    options: dict = {"padding": 0, "bg_color": ""}
     if "android" in platforms:
         bg = questionary.text(
             "Android background color (hex):",
@@ -112,7 +124,7 @@ def main() -> None:
             sys.exit(1)
         source = pathlib.Path(args.source)
         platforms = [p.strip() for p in args.platforms.split(",")]
-        options = {"android_bg": args.android_bg}
+        options = {"android_bg": args.android_bg, "padding": args.padding, "bg_color": args.bg_color}
     else:
         source, platforms, options = _interactive_prompts()
 

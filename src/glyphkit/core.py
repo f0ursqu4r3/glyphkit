@@ -83,3 +83,24 @@ def has_transparency(image: Image.Image) -> bool:
     extrema = alpha.getextrema()
     min_alpha: int = extrema[0]  # type: ignore[assignment]
     return min_alpha < 255
+
+
+def apply_padding(source: Image.Image, padding_pct: int) -> Image.Image:
+    """Add transparent padding around the icon. padding_pct is 0-50."""
+    if padding_pct <= 0:
+        return source
+    w, h = source.size
+    pad = int(w * padding_pct / 100)
+    new_size = w + pad * 2
+    canvas = Image.new("RGBA", (new_size, new_size), (0, 0, 0, 0))
+    canvas.paste(source, (pad, pad))
+    return canvas
+
+
+def apply_background(source: Image.Image, bg_color: str) -> Image.Image:
+    """Fill transparent areas with a solid background color."""
+    if not bg_color:
+        return source
+    bg = Image.new("RGBA", source.size, bg_color)
+    bg.paste(source, mask=source.split()[3])
+    return bg

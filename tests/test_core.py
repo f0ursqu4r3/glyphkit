@@ -10,6 +10,8 @@ from PIL import Image
 
 from glyphkit.core import (
     GlyphkitError,
+    apply_background,
+    apply_padding,
     has_transparency,
     load_and_validate_image,
     resize_image,
@@ -65,6 +67,31 @@ class TestResizeImage:
     def test_preserves_rgba(self, source_image: Image.Image) -> None:
         result = resize_image(source_image, 128)
         assert result.mode == "RGBA"
+
+
+class TestApplyPadding:
+    def test_no_padding(self, source_image: Image.Image) -> None:
+        result = apply_padding(source_image, 0)
+        assert result.size == (1024, 1024)
+
+    def test_ten_percent_padding(self, source_image: Image.Image) -> None:
+        result = apply_padding(source_image, 10)
+        # 1024 + 2*(1024*0.1) = 1024 + 204.8 ≈ 1228 (int rounding)
+        assert result.size[0] > 1024
+        assert result.size[0] == result.size[1]
+
+
+class TestApplyBackground:
+    def test_fills_transparent(self) -> None:
+        img = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        result = apply_background(img, "#FF0000")
+        pixel = result.getpixel((50, 50))
+        assert pixel[0] == 255  # Red
+        assert pixel[3] == 255  # Opaque
+
+    def test_empty_color_noop(self, source_image: Image.Image) -> None:
+        result = apply_background(source_image, "")
+        assert result is source_image
 
 
 class TestHasTransparency:

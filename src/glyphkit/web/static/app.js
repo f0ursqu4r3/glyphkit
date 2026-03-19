@@ -20,6 +20,10 @@
     const androidOptions = document.getElementById('androidOptions');
     const androidBg = document.getElementById('androidBg');
     const androidBgHex = document.getElementById('androidBgHex');
+    const paddingSlider = document.getElementById('paddingSlider');
+    const paddingValue = document.getElementById('paddingValue');
+    const bgColor = document.getElementById('bgColor');
+    const bgColorEnabled = document.getElementById('bgColorEnabled');
     const generateBtn = document.getElementById('generateBtn');
     const results = document.getElementById('results');
     const summaryBar = document.getElementById('summaryBar');
@@ -327,6 +331,14 @@
         androidBgHex.textContent = androidBg.value.toUpperCase();
     });
 
+    paddingSlider.addEventListener('input', function () {
+        paddingValue.textContent = paddingSlider.value + '%';
+    });
+
+    bgColorEnabled.addEventListener('change', function () {
+        bgColor.disabled = !bgColorEnabled.checked;
+    });
+
     // ── Generate ──
     generateBtn.addEventListener('click', async function () {
         if (generateBtn.disabled) return;
@@ -340,6 +352,8 @@
         formData.append('image', imageFile);
         formData.append('platforms', JSON.stringify(Array.from(selectedPlatforms)));
         formData.append('android_bg', androidBg.value);
+        formData.append('padding', paddingSlider.value);
+        formData.append('bg_color', bgColorEnabled.checked ? bgColor.value : '');
 
         try {
             var resp = await fetch('/api/generate', { method: 'POST', body: formData });
