@@ -31,6 +31,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--no-prompt", action="store_true", help="Skip interactive prompts"
     )
+    parser.add_argument(
+        "--watch", action="store_true", help="Watch source file and re-generate on change"
+    )
     parser.add_argument("--ui", action="store_true", help="Launch web UI")
     return parser.parse_args(argv)
 
@@ -149,12 +152,20 @@ def main() -> None:
 
     output_dir_str = get_option(config, "output_dir", args.output_dir, "./glyphkit-output")
     output_dir = pathlib.Path(output_dir_str)
+    if args.watch and not args.no_prompt:
+        print("Error: --watch requires --no-prompt", file=sys.stderr)
+        sys.exit(1)
+
     try:
         run(source=source, platforms=platforms, output_dir=output_dir, options=options)
     except GlyphkitError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
     print("Done!")
+
+    if args.watch and args.no_prompt:
+        from glyphkit.watch import watch_file
+        watch_file(source, lambda: run(source=source, platforms=platforms, output_dir=output_dir, options=options))
 
 
 if __name__ == "__main__":
