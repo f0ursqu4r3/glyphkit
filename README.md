@@ -42,20 +42,20 @@ Opens a local browser UI with drag-and-drop, live preview, and visual controls.
 
 ## CLI flags
 
-| Flag | Default | Description |
-|---|---|---|
-| `--source` | — | Source image path(s). Supports globs (`icons/*.png`) |
-| `--platforms` | — | `ios`, `android`, `macos`, `windows`, `web`, `linux` |
-| `--output-dir` | `./glyphkit-output` | Where to write generated files |
-| `--padding` | `0` | Transparent padding around icon (0–50%) |
-| `--bg-color` | — | Background fill: `#FFFFFF` or `#FF0000,#0000FF` for gradient |
-| `--bg-gradient-type` | `linear` | `linear` or `radial` |
-| `--bg-gradient-dir` | `to-br` | `to-right`, `to-br`, `to-bottom`, `to-bl` |
-| `--android-bg` | `#FFFFFF` | Android adaptive icon background color |
-| `--watch` | — | Re-generate when source file changes |
-| `--copy-path` | — | Copy output directory to clipboard |
-| `--no-prompt` | — | Skip interactive prompts (for CI/scripts) |
-| `--ui` | — | Launch the web UI |
+| Flag                 | Default             | Description                                                  |
+| -------------------- | ------------------- | ------------------------------------------------------------ |
+| `--source`           | —                   | Source image path(s). Supports globs (`icons/*.png`)         |
+| `--platforms`        | —                   | `ios`, `android`, `macos`, `windows`, `web`, `linux`         |
+| `--output-dir`       | `./glyphkit-output` | Where to write generated files                               |
+| `--padding`          | `0`                 | Transparent padding around icon (0–50%)                      |
+| `--bg-color`         | —                   | Background fill: `#FFFFFF` or `#FF0000,#0000FF` for gradient |
+| `--bg-gradient-type` | `linear`            | `linear` or `radial`                                         |
+| `--bg-gradient-dir`  | `to-br`             | `to-right`, `to-br`, `to-bottom`, `to-bl`                    |
+| `--android-bg`       | `#FFFFFF`           | Android adaptive icon background color                       |
+| `--watch`            | —                   | Re-generate when source file changes                         |
+| `--copy-path`        | —                   | Copy output directory to clipboard                           |
+| `--no-prompt`        | —                   | Skip interactive prompts (for CI/scripts)                    |
+| `--ui`               | —                   | Launch the web UI                                            |
 
 ## Source formats
 
@@ -69,7 +69,7 @@ uv pip install cairosvg
 
 ## Platform output
 
-```
+```text
 glyphkit-output/
   ios/
     AppIcon.appiconset/
@@ -138,6 +138,7 @@ glyphkit --source icon.png --platforms ios --no-prompt --watch
 `glyphkit --ui` starts a local server and opens your browser.
 
 Features:
+
 - Drag-and-drop or click to upload
 - Live size and shape previews
 - Padding slider with real-time preview
