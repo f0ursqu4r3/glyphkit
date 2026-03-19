@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 from contextlib import asynccontextmanager
 from io import BytesIO
@@ -148,7 +149,7 @@ async def generate_icons(
             file_entries.append({
                 "name": f.name,
                 "size": px_size,
-                "preview_url": f"/api/preview/{rel}",
+                "preview_url": f"/api/preview/{rel}?t={int(time.time())}",
             })
 
         result["platforms"][platform_name] = {
