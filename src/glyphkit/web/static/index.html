@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0a0a0f">
     <title>glyphkit</title>
     <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-    <link rel="stylesheet" href="/style.css?v=2">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
@@ -24,150 +24,122 @@
     </div>
 </div>
 
-<div class="app">
-    <!-- Top bar -->
-    <header class="topbar glass">
-        <h1 class="topbar__wordmark">glyphkit</h1>
-        <div class="topbar__dots" id="stepDots" aria-label="Step indicator">
-            <button class="step-dot step-dot--active" data-step="0" aria-label="Step 1: Source" aria-current="step"></button>
-            <button class="step-dot" data-step="1" aria-label="Step 2: Configure"></button>
-            <button class="step-dot" data-step="2" aria-label="Step 3: Results"></button>
-        </div>
+<div class="container">
+    <!-- Header -->
+    <header class="header entrance entrance-1">
+        <h1>glyphkit</h1>
     </header>
 
-    <!-- Steps container -->
-    <main class="steps">
-        <!-- Step 1: Source -->
-        <div class="step step--active" id="stepSource">
-            <div class="step__content step__content--centered">
-                <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
-                    <div class="drop-zone__placeholder">
-                        <div class="drop-zone__icon"><i data-lucide="upload" size="48" stroke-width="1.5"></i></div>
-                        <div class="drop-zone__text">Drop your icon here or <strong>browse files</strong></div>
-                        <div class="drop-zone__hint">PNG, JPEG, WebP, or SVG &mdash; square, 1024&times;1024 recommended</div>
-                    </div>
-                    <div class="image-preview" id="imagePreview">
-                        <img id="previewImg" alt="Icon preview">
-                        <div class="image-preview__badges" id="previewBadges"></div>
-                        <div class="warnings" id="previewWarnings"></div>
-                        <a class="change-image" id="changeImage">Change image</a>
-                    </div>
-                    <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml">
-                </div>
+    <!-- Drop zone -->
+    <div class="drop-zone entrance entrance-2" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
+        <div class="drop-zone__placeholder">
+            <div class="drop-zone__icon"><i data-lucide="upload" size="48" stroke-width="1.5"></i></div>
+            <div class="drop-zone__text">Drop your icon here or <strong>browse files</strong></div>
+            <div class="drop-zone__hint">PNG, JPEG, WebP, or SVG &mdash; square, 1024&times;1024 recommended</div>
+        </div>
+        <div class="image-preview" id="imagePreview">
+            <img id="previewImg" alt="Icon preview">
+            <div class="image-preview__badges" id="previewBadges"></div>
+            <div class="warnings" id="previewWarnings"></div>
+            <a class="change-image" id="changeImage">Change image</a>
+        </div>
+        <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml">
+    </div>
 
-                <!-- Live preview strip -->
-                <div class="preview-strip glass" id="previewStrip">
-                    <div class="preview-strip__inner">
-                        <div class="preview-strip__row" id="previewRow"></div>
-                    </div>
-                </div>
+    <!-- Live preview strip -->
+    <div class="preview-strip glass" id="previewStrip">
+        <div class="preview-strip__inner">
+            <div class="preview-strip__row" id="previewRow"></div>
+        </div>
+    </div>
 
-                <!-- Shape preview -->
-                <div class="shape-preview glass" id="shapePreview">
-                    <div class="shape-preview__inner">
-                        <div class="shape-preview__row" id="shapeRow"></div>
-                    </div>
+    <!-- Shape preview -->
+    <div class="shape-preview glass" id="shapePreview">
+        <div class="shape-preview__inner">
+            <div class="shape-preview__row" id="shapeRow"></div>
+        </div>
+    </div>
+
+    <!-- Platform selector -->
+    <div class="section entrance entrance-3">
+        <div class="section__header">
+            <span class="section__title">Platforms</span>
+            <button class="toggle-link" id="toggleAll">Select All</button>
+        </div>
+        <div class="platform-grid" id="platformGrid">
+            <div class="platform-card glass" data-platform="ios" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="smartphone" size="20"></i></div>
+                <div class="platform-card__name">iOS</div>
+            </div>
+            <div class="platform-card glass" data-platform="android" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="tablet-smartphone" size="20"></i></div>
+                <div class="platform-card__name">Android</div>
+            </div>
+            <div class="platform-card glass" data-platform="macos" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="monitor" size="20"></i></div>
+                <div class="platform-card__name">macOS</div>
+            </div>
+            <div class="platform-card glass" data-platform="windows" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="app-window" size="20"></i></div>
+                <div class="platform-card__name">Windows</div>
+            </div>
+            <div class="platform-card glass" data-platform="web" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="globe" size="20"></i></div>
+                <div class="platform-card__name">Web / PWA</div>
+            </div>
+            <div class="platform-card glass" data-platform="linux" role="checkbox" aria-checked="false" tabindex="0">
+                <div class="platform-card__icon" aria-hidden="true"><i data-lucide="terminal" size="20"></i></div>
+                <div class="platform-card__name">Linux</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Android options -->
+    <div class="android-options glass" id="androidOptions">
+        <div class="android-options__inner">
+            <span class="android-options__label">Android background color</span>
+            <div class="android-options__color-wrap">
+                <input type="color" class="android-options__color-input" id="androidBg" value="#FFFFFF">
+                <span class="android-options__hex" id="androidBgHex">#FFFFFF</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options -->
+    <div class="options-panel glass" id="optionsPanel">
+        <div class="options-panel__inner">
+            <div class="options-panel__row">
+                <span class="options-panel__label">Padding</span>
+                <input type="range" id="paddingSlider" min="0" max="50" value="0" class="options-panel__slider">
+                <span class="options-panel__value" id="paddingValue">0%</span>
+            </div>
+            <div class="options-panel__row">
+                <span class="options-panel__label">Background</span>
+                <div class="options-panel__color-wrap">
+                    <label class="options-panel__checkbox">
+                        <input type="checkbox" id="bgColorEnabled"> <span id="bgModeLabel">Solid</span>
+                    </label>
+                    <input type="color" class="options-panel__color-input" id="bgColor" value="#FFFFFF" disabled>
+                    <input type="color" class="options-panel__color-input" id="bgColor2" value="#6366f1" disabled style="display:none">
+                    <button class="toggle-link" id="bgGradientToggle" style="display:none">Gradient</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Step 2: Configure -->
-        <div class="step step--right" id="stepConfigure">
-            <div class="step__content step__content--configure">
-                <!-- Platform selector -->
-                <div class="section">
-                    <div class="section__header">
-                        <span class="section__title">Platforms</span>
-                        <button class="toggle-link" id="toggleAll">Select All</button>
-                    </div>
-                    <div class="platform-grid" id="platformGrid">
-                        <div class="platform-card glass" data-platform="ios" role="checkbox" aria-checked="false" tabindex="0">
-                            <i data-lucide="smartphone" size="16" aria-hidden="true"></i>
-                            <span class="platform-card__name">iOS</span>
-                        </div>
-                        <div class="platform-card glass" data-platform="android" role="checkbox" aria-checked="false" tabindex="0">
-                            <i data-lucide="tablet-smartphone" size="16" aria-hidden="true"></i>
-                            <span class="platform-card__name">Android</span>
-                        </div>
-                        <div class="platform-card glass" data-platform="macos" role="checkbox" aria-checked="false" tabindex="0">
-                            <i data-lucide="monitor" size="16" aria-hidden="true"></i>
-                            <span class="platform-card__name">macOS</span>
-                        </div>
-                        <div class="platform-card glass" data-platform="windows" role="checkbox" aria-checked="false" tabindex="0">
-                            <i data-lucide="app-window" size="16" aria-hidden="true"></i>
-                            <span class="platform-card__name">Windows</span>
-                        </div>
-                        <div class="platform-card glass" data-platform="web" role="checkbox" aria-checked="false" tabindex="0">
-                            <i data-lucide="globe" size="16" aria-hidden="true"></i>
-                            <span class="platform-card__name">Web / PWA</span>
-                        </div>
-                        <div class="platform-card glass" data-platform="linux" role="checkbox" aria-checked="false" tabindex="0">
-                            <i data-lucide="terminal" size="16" aria-hidden="true"></i>
-                            <span class="platform-card__name">Linux</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- Generate button -->
+    <div class="generate-wrap entrance entrance-4">
+        <button class="generate-btn" id="generateBtn" disabled>Generate Icons</button>
+    </div>
 
-                <!-- Android options -->
-                <div class="android-options glass" id="androidOptions">
-                    <div class="android-options__inner">
-                        <span class="android-options__label">Android background color</span>
-                        <div class="android-options__color-wrap">
-                            <input type="color" class="android-options__color-input" id="androidBg" value="#FFFFFF">
-                            <span class="android-options__hex" id="androidBgHex">#FFFFFF</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Options -->
-                <div class="options-panel glass" id="optionsPanel">
-                    <div class="options-panel__inner">
-                        <div class="options-panel__row">
-                            <span class="options-panel__label">Padding</span>
-                            <input type="range" id="paddingSlider" min="0" max="50" value="0" class="options-panel__slider">
-                            <span class="options-panel__value" id="paddingValue">0%</span>
-                        </div>
-                        <div class="options-panel__row">
-                            <span class="options-panel__label">Background</span>
-                            <div class="options-panel__color-wrap">
-                                <label class="options-panel__checkbox">
-                                    <input type="checkbox" id="bgColorEnabled"> <span id="bgModeLabel">Solid</span>
-                                </label>
-                                <input type="color" class="options-panel__color-input" id="bgColor" value="#FFFFFF" disabled>
-                                <input type="color" class="options-panel__color-input" id="bgColor2" value="#6366f1" disabled style="display:none">
-                                <button class="toggle-link" id="bgGradientToggle" style="display:none">Gradient</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 3: Results -->
-        <div class="step step--right" id="stepResults">
-            <div class="step__content step__content--scrollable">
-                <div class="results" id="results">
-                    <div class="summary-bar glass" id="summaryBar"></div>
-                    <div id="resultCards"></div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Bottom bar -->
-    <footer class="bottombar glass">
-        <button class="bottombar__btn bottombar__btn--back" id="btnBack" disabled>
-            <i data-lucide="arrow-left" size="14"></i> Back
-        </button>
-        <div class="bottombar__right" id="bottombarRight">
-            <button class="bottombar__btn bottombar__btn--primary" id="btnNext" disabled>
-                Next <i data-lucide="arrow-right" size="14"></i>
-            </button>
-        </div>
-    </footer>
+    <!-- Results -->
+    <div class="results" id="results">
+        <div class="summary-bar glass" id="summaryBar"></div>
+        <div id="resultCards"></div>
+    </div>
 </div>
 
-<script src="/app.js?v=2"></script>
+<script src="/app.js"></script>
 
 </body>
 </html>
