@@ -127,6 +127,22 @@
             border-radius: var(--radius-panel);
         }
 
+        /* ── Page entrance ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .entrance {
+            opacity: 0;
+            animation: fadeUp 600ms var(--ease-out) forwards;
+        }
+
+        .entrance-1 { animation-delay: 0ms; }
+        .entrance-2 { animation-delay: 80ms; }
+        .entrance-3 { animation-delay: 160ms; }
+        .entrance-4 { animation-delay: 240ms; }
+
         /* ── Header ── */
         .header {
             margin-bottom: 40px;
@@ -188,6 +204,16 @@
         .drop-zone__icon {
             margin-bottom: var(--space-lg);
             color: var(--text-dim);
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+        .drop-zone--has-image .drop-zone__icon {
+            animation: none;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
         }
 
         .drop-zone__text {
@@ -235,6 +261,12 @@
             max-height: 200px;
             border-radius: 8px;
             image-rendering: auto;
+            animation: imageSettle 400ms var(--ease-out);
+        }
+
+        @keyframes imageSettle {
+            from { transform: scale(1.06); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
         .image-preview__badges {
@@ -385,8 +417,12 @@
         .platform-card {
             padding: 16px;
             cursor: pointer;
-            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition), transform var(--transition);
             user-select: none;
+        }
+
+        .platform-card:active {
+            transform: scale(0.97);
         }
 
         .platform-card:hover {
@@ -495,19 +531,29 @@
             height: 48px;
             border: none;
             border-radius: var(--radius-btn);
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-1));
+            background-size: 200% 200%;
+            background-position: 0% 50%;
             color: #f8fafc;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+            transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition), background-position 400ms var(--ease-out);
             position: relative;
             font-family: inherit;
+            overflow: hidden;
         }
 
         .generate-btn:hover:not(:disabled) {
             transform: scale(1.01);
             box-shadow: 0 4px 24px var(--accent-outline);
+            background-position: 100% 50%;
+        }
+
+        .generate-btn.success {
+            background: var(--green);
+            background-size: 100% 100%;
+            transition: background 200ms var(--ease-out);
         }
 
         .generate-btn:active:not(:disabled) {
@@ -904,6 +950,7 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--red-border);
+            border-left: 3px solid var(--red);
             color: var(--text-primary);
             font-size: 14px;
             max-width: 380px;
@@ -914,6 +961,7 @@
 
         .toast--success {
             border-color: var(--green-border);
+            border-left: 3px solid var(--green);
         }
 
         .toast.dismissing {
@@ -1064,13 +1112,13 @@
 
 <div class="container">
     <!-- Header -->
-    <header class="header">
+    <header class="header entrance entrance-1">
         <h1>iconforge</h1>
         <p>Universal App Icon Generator</p>
     </header>
 
     <!-- Drop zone -->
-    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
+    <div class="drop-zone entrance entrance-2" id="dropZone" role="button" tabindex="0" aria-label="Upload icon image — drag and drop or click to browse">
         <div class="drop-zone__placeholder">
             <div class="drop-zone__icon"><i data-lucide="upload" size="48" stroke-width="1.5"></i></div>
             <div class="drop-zone__text">Drop your icon here or <strong>browse files</strong></div>
@@ -1094,7 +1142,7 @@
     </div>
 
     <!-- Platform selector -->
-    <div class="section">
+    <div class="section entrance entrance-3">
         <div class="section__header">
             <span class="section__title">Platforms</span>
             <button class="toggle-link" id="toggleAll">Select All</button>
@@ -1145,7 +1193,7 @@
     </div>
 
     <!-- Generate button -->
-    <div class="generate-wrap">
+    <div class="generate-wrap entrance entrance-4">
         <button class="generate-btn" id="generateBtn" disabled>Generate Icons</button>
     </div>
 
@@ -1545,11 +1593,21 @@
             }
 
             generationResult = data;
+
+            // Brief success flash
+            generateBtn.classList.remove('loading');
+            generateBtn.classList.add('success');
+            generateBtn.textContent = '\u2713 Done';
+            setTimeout(function () {
+                generateBtn.classList.remove('success');
+                generateBtn.textContent = 'Generate Icons';
+                updateGenerateBtn();
+            }, 1200);
+
             renderResults(data);
 
         } catch (err) {
             showToast('Can\u2019t reach the server. Is iconforge still running?');
-        } finally {
             generateBtn.classList.remove('loading');
             generateBtn.textContent = 'Generate Icons';
             updateGenerateBtn();
