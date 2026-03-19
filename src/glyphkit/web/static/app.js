@@ -2,49 +2,58 @@
     'use strict';
 
     // ── State ──
-    let selectedPlatforms = new Set();
-    let imageFile = null;
-    let imageDataUrl = null;
-    let generationResult = null;
+    var selectedPlatforms = new Set();
+    var imageFile = null;
+    var imageDataUrl = null;
+    var generationResult = null;
+    var currentStep = 0;
+    var steps = ['stepSource', 'stepConfigure', 'stepResults'];
 
     // ── DOM refs ──
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const previewImg = document.getElementById('previewImg');
-    const previewBadges = document.getElementById('previewBadges');
-    const previewWarnings = document.getElementById('previewWarnings');
-    const previewStrip = document.getElementById('previewStrip');
-    const previewRow = document.getElementById('previewRow');
-    const shapePreview = document.getElementById('shapePreview');
-    const shapeRow = document.getElementById('shapeRow');
-    const platformGrid = document.getElementById('platformGrid');
-    const toggleAllBtn = document.getElementById('toggleAll');
-    const androidOptions = document.getElementById('androidOptions');
-    const androidBg = document.getElementById('androidBg');
-    const androidBgHex = document.getElementById('androidBgHex');
-    const paddingSlider = document.getElementById('paddingSlider');
-    const paddingValue = document.getElementById('paddingValue');
-    const bgColor = document.getElementById('bgColor');
-    const bgColor2 = document.getElementById('bgColor2');
-    const bgColorEnabled = document.getElementById('bgColorEnabled');
-    const bgGradientToggle = document.getElementById('bgGradientToggle');
-    const bgModeLabel = document.getElementById('bgModeLabel');
-    let bgGradientMode = false;
-    const generateBtn = document.getElementById('generateBtn');
-    const results = document.getElementById('results');
-    const summaryBar = document.getElementById('summaryBar');
-    const resultCards = document.getElementById('resultCards');
-    const toastContainer = document.getElementById('toastContainer');
-    const changeImage = document.getElementById('changeImage');
+    var dropZone = document.getElementById('dropZone');
+    var fileInput = document.getElementById('fileInput');
+    var previewImg = document.getElementById('previewImg');
+    var previewBadges = document.getElementById('previewBadges');
+    var previewWarnings = document.getElementById('previewWarnings');
+    var previewStrip = document.getElementById('previewStrip');
+    var previewRow = document.getElementById('previewRow');
+    var shapePreview = document.getElementById('shapePreview');
+    var shapeRow = document.getElementById('shapeRow');
+    var platformGrid = document.getElementById('platformGrid');
+    var toggleAllBtn = document.getElementById('toggleAll');
+    var androidOptions = document.getElementById('androidOptions');
+    var androidBg = document.getElementById('androidBg');
+    var androidBgHex = document.getElementById('androidBgHex');
+    var paddingSlider = document.getElementById('paddingSlider');
+    var paddingValue = document.getElementById('paddingValue');
+    var bgColor = document.getElementById('bgColor');
+    var bgColor2 = document.getElementById('bgColor2');
+    var bgColorEnabled = document.getElementById('bgColorEnabled');
+    var bgGradientToggle = document.getElementById('bgGradientToggle');
+    var bgModeLabel = document.getElementById('bgModeLabel');
+    var bgGradientMode = false;
+    var results = document.getElementById('results');
+    var summaryBar = document.getElementById('summaryBar');
+    var resultCards = document.getElementById('resultCards');
+    var toastContainer = document.getElementById('toastContainer');
+    var changeImage = document.getElementById('changeImage');
 
-    const previewModal = document.getElementById('previewModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalPreview = document.getElementById('modalPreview');
-    const modalMeta = document.getElementById('modalMeta');
-    const modalClose = document.getElementById('modalClose');
+    var previewModal = document.getElementById('previewModal');
+    var modalTitle = document.getElementById('modalTitle');
+    var modalPreview = document.getElementById('modalPreview');
+    var modalMeta = document.getElementById('modalMeta');
+    var modalClose = document.getElementById('modalClose');
 
-    const PREVIEW_SIZES = [16, 32, 64, 128, 256, 512];
-    const PLATFORM_SHAPES = [
+    // Bottom bar
+    var btnBack = document.getElementById('btnBack');
+    var btnNext = document.getElementById('btnNext');
+    var bottombarRight = document.getElementById('bottombarRight');
+
+    // Step dots
+    var stepDots = document.querySelectorAll('.step-dot');
+
+    var PREVIEW_SIZES = [16, 32, 64, 128, 256, 512];
+    var PLATFORM_SHAPES = [
         { id: 'ios', label: 'iOS', cssClass: 'ios' },
         { id: 'android', label: 'Android', cssClass: 'android' },
         { id: 'macos', label: 'macOS', cssClass: 'macos' },
@@ -52,7 +61,7 @@
         { id: 'web', label: 'Web', cssClass: 'web' },
         { id: 'linux', label: 'Linux', cssClass: 'linux' },
     ];
-    const PLATFORM_ICONS = {
+    var PLATFORM_ICONS = {
         ios: 'smartphone',
         android: 'tablet-smartphone',
         macos: 'monitor',
@@ -60,7 +69,7 @@
         web: 'globe',
         linux: 'terminal'
     };
-    const PLATFORM_NAMES = {
+    var PLATFORM_NAMES = {
         ios: 'iOS',
         android: 'Android',
         macos: 'macOS',
@@ -69,10 +78,134 @@
         linux: 'Linux'
     };
 
+    // ── Step navigation ──
+    function goToStep(index) {
+        if (index < 0 || index >= steps.length) return;
+        if (index === currentStep) return;
+
+        var stepEls = steps.map(function (id) { return document.getElementById(id); });
+
+        stepEls.forEach(function (el, i) {
+            el.classList.remove('step--active', 'step--left', 'step--right');
+            if (i < index) {
+                el.classList.add('step--left');
+            } else if (i > index) {
+                el.classList.add('step--right');
+            } else {
+                el.classList.add('step--active');
+            }
+        });
+
+        currentStep = index;
+        updateStepDots();
+        updateBottomBar();
+    }
+
+    function updateStepDots() {
+        stepDots.forEach(function (dot, i) {
+            dot.classList.remove('step-dot--active', 'step-dot--completed');
+            dot.removeAttribute('aria-current');
+            if (i === currentStep) {
+                dot.classList.add('step-dot--active');
+                dot.setAttribute('aria-current', 'step');
+            } else if (i < currentStep) {
+                dot.classList.add('step-dot--completed');
+            }
+        });
+    }
+
+    function updateBottomBar() {
+        // Clear right side
+        bottombarRight.innerHTML = '';
+
+        if (currentStep === 0) {
+            // Step 1: Source
+            btnBack.disabled = true;
+            btnBack.style.visibility = 'hidden';
+
+            var next = document.createElement('button');
+            next.className = 'bottombar__btn bottombar__btn--primary';
+            next.id = 'btnNext';
+            next.disabled = !imageFile;
+            next.innerHTML = 'Next <i data-lucide="arrow-right" size="14"></i>';
+            next.addEventListener('click', function () { goToStep(1); });
+            bottombarRight.appendChild(next);
+            btnNext = next;
+
+        } else if (currentStep === 1) {
+            // Step 2: Configure
+            btnBack.disabled = false;
+            btnBack.style.visibility = 'visible';
+
+            var generate = document.createElement('button');
+            generate.className = 'bottombar__btn bottombar__btn--primary';
+            generate.id = 'btnGenerate';
+            generate.disabled = selectedPlatforms.size === 0;
+            generate.innerHTML = '<i data-lucide="zap" size="14"></i> Generate';
+            generate.addEventListener('click', doGenerate);
+            bottombarRight.appendChild(generate);
+
+        } else if (currentStep === 2) {
+            // Step 3: Results
+            btnBack.style.visibility = 'visible';
+            btnBack.disabled = false;
+
+            // Replace back text with "Start Over"
+            btnBack.innerHTML = '<i data-lucide="rotate-ccw" size="14"></i> Start Over';
+
+            var dlBtn = document.createElement('a');
+            dlBtn.href = '/api/download';
+            dlBtn.download = 'glyphkit-output.zip';
+            dlBtn.className = 'bottombar__btn bottombar__btn--primary';
+            dlBtn.innerHTML = '<i data-lucide="download" size="14"></i> Download ZIP';
+            bottombarRight.appendChild(dlBtn);
+
+            var openBtn = document.createElement('button');
+            openBtn.className = 'bottombar__btn';
+            openBtn.innerHTML = '<i data-lucide="folder-open" size="14"></i> Open Folder';
+            openBtn.addEventListener('click', doOpenFolder);
+            bottombarRight.appendChild(openBtn);
+
+            var copyBtn = document.createElement('button');
+            copyBtn.className = 'bottombar__btn';
+            copyBtn.innerHTML = '<i data-lucide="clipboard-copy" size="14"></i> Copy Path';
+            copyBtn.addEventListener('click', doCopyPath);
+            bottombarRight.appendChild(copyBtn);
+        }
+
+        lucide.createIcons();
+    }
+
+    // Back button
+    btnBack.addEventListener('click', function () {
+        if (currentStep === 2) {
+            // Start over — go to step 0
+            goToStep(0);
+            // Reset back button text
+            btnBack.innerHTML = '<i data-lucide="arrow-left" size="14"></i> Back';
+        } else {
+            goToStep(currentStep - 1);
+        }
+    });
+
+    // Step dot clicks
+    stepDots.forEach(function (dot) {
+        dot.addEventListener('click', function () {
+            var target = parseInt(dot.dataset.step, 10);
+            // Only allow going to completed steps or current+1 if valid
+            if (target <= currentStep) {
+                goToStep(target);
+            } else if (target === 1 && imageFile) {
+                goToStep(1);
+            }
+            // Don't allow jumping to results
+        });
+    });
+
     // ── Toast ──
     function showToast(message, type) {
         type = type || 'error';
-        const toast = document.createElement('div');
+        var toast = document.createElement('div');
         toast.className = 'toast' + (type === 'success' ? ' toast--success' : '');
         toast.textContent = message;
         toastContainer.appendChild(toast);
@@ -86,12 +219,10 @@
     function openPreviewModal(file, platformName) {
         modalTitle.textContent = file.name;
 
-        // Image preview
         modalPreview.innerHTML = '';
         var img = document.createElement('img');
         img.src = file.preview_url;
         img.alt = file.name;
-        // Use pixelated rendering for icons <= 64px so they stay crisp
         if (file.size > 0 && file.size <= 64) {
             img.classList.add('pixelated');
             img.style.width = Math.max(file.size * 4, 128) + 'px';
@@ -99,7 +230,6 @@
         }
         modalPreview.appendChild(img);
 
-        // Metadata — just dimensions and filename
         modalMeta.innerHTML = '';
         if (file.size > 0) {
             modalMeta.innerHTML += '<div class="modal__meta-item">' +
@@ -110,12 +240,10 @@
             '<span class="modal__meta-key">File</span>' +
             '<span class="modal__meta-value">' + file.name + '</span></div>';
 
-        // Show
         previewModal.style.display = 'flex';
         requestAnimationFrame(function () {
             previewModal.classList.add('visible');
         });
-        document.body.style.overflow = 'hidden';
     }
 
     function closePreviewModal() {
@@ -126,7 +254,6 @@
             modalPreview.innerHTML = '';
             modalMeta.innerHTML = '';
         });
-        document.body.style.overflow = '';
     }
 
     previewModal.style.display = 'none';
@@ -141,9 +268,15 @@
         }
     });
 
-    // ── Update generate button state ──
-    function updateGenerateBtn() {
-        generateBtn.disabled = !(imageFile && selectedPlatforms.size > 0);
+    // ── Update bottom bar state ──
+    function updateNextBtn() {
+        if (currentStep === 0 && btnNext) {
+            btnNext.disabled = !imageFile;
+        }
+        if (currentStep === 1) {
+            var genBtn = document.getElementById('btnGenerate');
+            if (genBtn) genBtn.disabled = selectedPlatforms.size === 0;
+        }
     }
 
     // ── Drop zone events ──
@@ -219,7 +352,6 @@
                 return;
             }
 
-            // Show preview
             dropZone.classList.add('drop-zone--has-image');
             previewBadges.innerHTML = '';
             previewWarnings.innerHTML = '';
@@ -245,9 +377,8 @@
                 });
             }
 
-            // Populate previews (applies current padding)
             updatePreviews();
-            updateGenerateBtn();
+            updateNextBtn();
 
         } catch (err) {
             showToast('Can\u2019t reach the server. Is glyphkit still running?');
@@ -267,7 +398,6 @@
         var img = new window.Image();
         img.src = imageDataUrl;
 
-        // Calculate dimensions with padding
         var pad = pct > 0 ? Math.round(img.width * pct / 100) : 0;
         var newSize = img.width + pad * 2;
 
@@ -276,7 +406,6 @@
         canvas.height = newSize;
         var ctx = canvas.getContext('2d');
 
-        // Fill background if enabled
         if (hasBg) {
             if (bgGradientMode) {
                 var grad = ctx.createLinearGradient(0, 0, newSize, newSize);
@@ -375,7 +504,7 @@
             card.setAttribute('aria-checked', 'true');
         }
         updateAndroidOptions();
-        updateGenerateBtn();
+        updateNextBtn();
         updateToggleLabel();
     }
 
@@ -401,7 +530,7 @@
             });
         }
         updateAndroidOptions();
-        updateGenerateBtn();
+        updateNextBtn();
         updateToggleLabel();
     });
 
@@ -457,12 +586,14 @@
     });
 
     // ── Generate ──
-    generateBtn.addEventListener('click', async function () {
-        if (generateBtn.disabled) return;
+    async function doGenerate() {
+        var genBtn = document.getElementById('btnGenerate');
+        if (!genBtn || genBtn.disabled) return;
 
-        generateBtn.disabled = true;
-        generateBtn.textContent = 'Generating\u2026';
-        generateBtn.classList.add('loading');
+        genBtn.disabled = true;
+        genBtn.innerHTML = '<i data-lucide="loader" size="14"></i> Generating\u2026';
+        genBtn.classList.add('loading');
+        lucide.createIcons();
         results.classList.remove('visible');
 
         var formData = new FormData();
@@ -486,33 +617,65 @@
 
             if (!resp.ok) {
                 showToast(data.detail || 'Generation failed. Check your image and try again.');
-                generateBtn.disabled = false;
-                generateBtn.textContent = 'Generate Icons';
-                generateBtn.classList.remove('loading');
+                genBtn.disabled = false;
+                genBtn.innerHTML = '<i data-lucide="zap" size="14"></i> Generate';
+                genBtn.classList.remove('loading');
+                lucide.createIcons();
                 return;
             }
 
             generationResult = data;
 
-            // Brief success flash
-            generateBtn.classList.remove('loading');
-            generateBtn.classList.add('success');
-            generateBtn.textContent = '\u2713 Done';
-            setTimeout(function () {
-                generateBtn.classList.remove('success');
-                generateBtn.textContent = 'Generate Icons';
-                updateGenerateBtn();
-            }, 1200);
+            // Success — go to results step
+            genBtn.classList.remove('loading');
+            genBtn.classList.add('success');
+            genBtn.innerHTML = '\u2713 Done';
 
             renderResults(data);
 
+            setTimeout(function () {
+                goToStep(2);
+            }, 400);
+
         } catch (err) {
             showToast('Can\u2019t reach the server. Is glyphkit still running?');
-            generateBtn.classList.remove('loading');
-            generateBtn.textContent = 'Generate Icons';
-            updateGenerateBtn();
+            genBtn.classList.remove('loading');
+            genBtn.innerHTML = '<i data-lucide="zap" size="14"></i> Generate';
+            genBtn.disabled = false;
+            lucide.createIcons();
         }
-    });
+    }
+
+    // ── Open folder ──
+    async function doOpenFolder() {
+        try {
+            var resp = await fetch('/api/open-folder', { method: 'POST' });
+            if (resp.ok) {
+                showToast('Icons saved and folder opened', 'success');
+            } else {
+                var errData = await resp.json();
+                showToast(errData.detail || 'Could not open the output folder');
+            }
+        } catch (err) {
+            showToast('Can\u2019t reach the server. Is glyphkit still running?');
+        }
+    }
+
+    // ── Copy path ──
+    async function doCopyPath() {
+        try {
+            var resp = await fetch('/api/copy-path', { method: 'POST' });
+            var data = await resp.json();
+            if (resp.ok && data.path) {
+                await navigator.clipboard.writeText(data.path);
+                showToast('Path copied to clipboard', 'success');
+            } else {
+                showToast(data.detail || 'Could not save output');
+            }
+        } catch (err) {
+            showToast('Could not copy to clipboard');
+        }
+    }
 
     // ── Render results ──
     function renderResults(data) {
@@ -521,41 +684,7 @@
         Object.values(platforms).forEach(function (p) { totalFiles += p.file_count; });
 
         // Summary
-        summaryBar.innerHTML = '<div class="summary-bar__text"><strong>' + totalFiles + ' files</strong> generated across ' + Object.keys(platforms).length + ' platform' + (Object.keys(platforms).length > 1 ? 's' : '') + '</div>' +
-            '<div class="summary-bar__actions">' +
-            '<a href="/api/download" download="glyphkit-output.zip" class="btn-outline"><i data-lucide="download" size="14"></i> Download ZIP</a>' +
-            '<button class="btn-outline" id="openFolderBtn"><i data-lucide="folder-open" size="14"></i> Open Folder</button>' +
-            '<button class="btn-outline" id="copyPathBtn"><i data-lucide="clipboard-copy" size="14"></i> Copy Path</button>' +
-            '</div>';
-
-        document.getElementById('openFolderBtn').addEventListener('click', async function () {
-            try {
-                var resp = await fetch('/api/open-folder', { method: 'POST' });
-                if (resp.ok) {
-                    showToast('Icons saved and folder opened', 'success');
-                } else {
-                    var errData = await resp.json();
-                    showToast(errData.detail || 'Could not open the output folder');
-                }
-            } catch (err) {
-                showToast('Can\u2019t reach the server. Is glyphkit still running?');
-            }
-        });
-
-        document.getElementById('copyPathBtn').addEventListener('click', async function () {
-            try {
-                var resp = await fetch('/api/copy-path', { method: 'POST' });
-                var data = await resp.json();
-                if (resp.ok && data.path) {
-                    await navigator.clipboard.writeText(data.path);
-                    showToast('Path copied to clipboard', 'success');
-                } else {
-                    showToast(data.detail || 'Could not save output');
-                }
-            } catch (err) {
-                showToast('Could not copy to clipboard');
-            }
-        });
+        summaryBar.innerHTML = '<div class="summary-bar__text"><strong>' + totalFiles + ' files</strong> generated across ' + Object.keys(platforms).length + ' platform' + (Object.keys(platforms).length > 1 ? 's' : '') + '</div>';
 
         // Platform cards
         resultCards.innerHTML = '';
@@ -580,7 +709,6 @@
                 '<div class="result-card__body"><div class="icon-grid"></div></div>';
 
             var grid = card.querySelector('.icon-grid');
-            // Sort: images first (by size descending), then non-images
             var sortedFiles = pData.files.slice().sort(function (a, b) {
                 var aImg = /\.(png|ico)$/i.test(a.name) ? 1 : 0;
                 var bImg = /\.(png|ico)$/i.test(b.name) ? 1 : 0;
@@ -638,12 +766,28 @@
 
         results.classList.add('visible');
         lucide.createIcons();
-
-        // Scroll into view
-        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // Initialize Lucide icons on page load
+    // ── Keyboard shortcuts ──
+    document.addEventListener('keydown', function (e) {
+        // Don't intercept if modal is open or inside an input
+        if (previewModal.classList.contains('visible')) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        if (e.key === 'ArrowRight' && currentStep === 0 && imageFile) {
+            goToStep(1);
+        } else if (e.key === 'ArrowLeft' && currentStep > 0) {
+            if (currentStep === 2) {
+                goToStep(0);
+                btnBack.innerHTML = '<i data-lucide="arrow-left" size="14"></i> Back';
+            } else {
+                goToStep(currentStep - 1);
+            }
+        }
+    });
+
+    // Initialize
+    updateBottomBar();
     lucide.createIcons();
 
 })();
