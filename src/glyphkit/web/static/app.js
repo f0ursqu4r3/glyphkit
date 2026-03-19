@@ -148,6 +148,7 @@
     // ── Update generate button state ──
     function updateGenerateBtn() {
         generateBtn.disabled = !(imageFile && selectedPlatforms.size > 0);
+        checkReadyPulse();
     }
 
     // ── Drop zone events ──
@@ -409,10 +410,13 @@
             selectedPlatforms.clear();
             cards.forEach(function (c) { c.classList.remove('selected'); c.setAttribute('aria-checked', 'false'); });
         } else {
-            cards.forEach(function (c) {
+            // Stagger selection for visual delight
+            cards.forEach(function (c, i) {
                 selectedPlatforms.add(c.dataset.platform);
-                c.classList.add('selected');
-                c.setAttribute('aria-checked', 'true');
+                setTimeout(function () {
+                    c.classList.add('selected');
+                    c.setAttribute('aria-checked', 'true');
+                }, i * 40);
             });
         }
         updateAndroidOptions();
@@ -680,9 +684,45 @@
         results.classList.add('visible');
         lucide.createIcons();
 
+        // Auto-expand first result card after a brief delay
+        var firstCard = resultCards.querySelector('.result-card');
+        if (firstCard) {
+            setTimeout(function () {
+                firstCard.classList.add('expanded');
+            }, 400);
+        }
+
         // Scroll into view
         results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // ── Generate button ready pulse ──
+    var hasShownReadyPulse = false;
+
+    function checkReadyPulse() {
+        if (hasShownReadyPulse) return;
+        if (imageFile && selectedPlatforms.size > 0) {
+            hasShownReadyPulse = true;
+            generateBtn.classList.add('ready-pulse');
+            generateBtn.addEventListener('animationend', function () {
+                generateBtn.classList.remove('ready-pulse');
+            }, { once: true });
+        }
+    }
+
+    // ── Staggered select-all ──
+    var originalToggleAll = toggleAllBtn.onclick;
+    // (toggleAll handler already exists via addEventListener, we augment the visual)
+
+    // ── Auto-expand first result card ──
+    // (handled in renderResults below)
+
+    // ── Console greeting ──
+    console.log(
+        '%c glyphkit %c Universal App Icon Generator',
+        'background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: 700;',
+        'color: #94a3b8; padding: 4px 0;'
+    );
 
     // Initialize Lucide icons on page load
     lucide.createIcons();

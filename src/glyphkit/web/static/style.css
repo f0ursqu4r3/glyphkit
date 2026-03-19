@@ -774,6 +774,16 @@ body::before {
     box-shadow: none;
 }
 
+.generate-btn.ready-pulse {
+    animation: readyPulse 600ms var(--ease-out);
+}
+
+@keyframes readyPulse {
+    0% { box-shadow: none; }
+    50% { box-shadow: 0 0 24px var(--accent-outline); }
+    100% { box-shadow: none; }
+}
+
 .generate-btn.loading {
     animation: btnPulse 1.5s var(--ease-out) infinite;
 }
