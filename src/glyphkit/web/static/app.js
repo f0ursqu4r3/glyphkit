@@ -28,7 +28,7 @@
     const bgColor2 = document.getElementById('bgColor2');
     const bgColorEnabled = document.getElementById('bgColorEnabled');
     const bgGradientToggle = document.getElementById('bgGradientToggle');
-    const bgModeLabel = document.getElementById('bgModeLabel');
+    const bgModeLabel = document.getElementById('bgModeLabel'); // may be null
     let bgGradientMode = false;
     const generateBtn = document.getElementById('generateBtn');
     const results = document.getElementById('results');
@@ -410,11 +410,7 @@
     }
 
     function updateAndroidOptions() {
-        if (selectedPlatforms.has('android')) {
-            androidOptions.classList.add('visible');
-        } else {
-            androidOptions.classList.remove('visible');
-        }
+        androidOptions.style.display = selectedPlatforms.has('android') ? 'flex' : 'none';
     }
 
     androidBg.addEventListener('input', function () {
@@ -434,7 +430,7 @@
             bgGradientMode = false;
             bgColor2.style.display = 'none';
             bgGradientToggle.textContent = 'Gradient';
-            bgModeLabel.textContent = 'Solid';
+            if (bgModeLabel) bgModeLabel.textContent = 'Solid';
         }
         updatePreviews();
     });
@@ -444,7 +440,7 @@
         bgColor2.style.display = bgGradientMode ? '' : 'none';
         bgColor2.disabled = !bgGradientMode;
         bgGradientToggle.textContent = bgGradientMode ? 'Solid' : 'Gradient';
-        bgModeLabel.textContent = bgGradientMode ? 'Gradient' : 'Solid';
+        if (bgModeLabel) bgModeLabel.textContent = bgGradientMode ? 'Gradient' : 'Solid';
         updatePreviews();
     });
 

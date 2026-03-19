@@ -60,8 +60,39 @@
         </div>
     </div>
 
+    <!-- Adjustments -->
+    <div class="adjustments glass entrance entrance-3" id="adjustments">
+        <div class="adjustments__inner">
+            <div class="adjustments__row">
+                <span class="adjustments__label"><i data-lucide="move" size="14"></i> Padding</span>
+                <input type="range" id="paddingSlider" min="0" max="50" value="0" class="adjustments__slider">
+                <span class="adjustments__value" id="paddingValue">0%</span>
+            </div>
+            <div class="adjustments__divider"></div>
+            <div class="adjustments__row">
+                <span class="adjustments__label"><i data-lucide="paint-bucket" size="14"></i> Background</span>
+                <div class="adjustments__controls">
+                    <label class="adjustments__toggle">
+                        <input type="checkbox" id="bgColorEnabled">
+                        <span class="adjustments__toggle-track"></span>
+                    </label>
+                    <input type="color" class="adjustments__color" id="bgColor" value="#FFFFFF" disabled>
+                    <button class="toggle-link" id="bgGradientToggle" style="display:none">Gradient</button>
+                    <input type="color" class="adjustments__color" id="bgColor2" value="#6366f1" disabled style="display:none">
+                </div>
+            </div>
+            <div class="adjustments__row adjustments__row--android" id="androidOptions" style="display:none">
+                <span class="adjustments__label"><i data-lucide="tablet-smartphone" size="14"></i> Android bg</span>
+                <div class="adjustments__controls">
+                    <input type="color" class="adjustments__color" id="androidBg" value="#FFFFFF">
+                    <span class="adjustments__hex" id="androidBgHex">#FFFFFF</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Platform selector -->
-    <div class="section entrance entrance-3">
+    <div class="section entrance entrance-4">
         <div class="section__header">
             <span class="section__title">Platforms</span>
             <button class="toggle-link" id="toggleAll">Select All</button>
@@ -94,41 +125,8 @@
         </div>
     </div>
 
-    <!-- Android options -->
-    <div class="android-options glass" id="androidOptions">
-        <div class="android-options__inner">
-            <span class="android-options__label">Android background color</span>
-            <div class="android-options__color-wrap">
-                <input type="color" class="android-options__color-input" id="androidBg" value="#FFFFFF">
-                <span class="android-options__hex" id="androidBgHex">#FFFFFF</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Options -->
-    <div class="options-panel glass" id="optionsPanel">
-        <div class="options-panel__inner">
-            <div class="options-panel__row">
-                <span class="options-panel__label">Padding</span>
-                <input type="range" id="paddingSlider" min="0" max="50" value="0" class="options-panel__slider">
-                <span class="options-panel__value" id="paddingValue">0%</span>
-            </div>
-            <div class="options-panel__row">
-                <span class="options-panel__label">Background</span>
-                <div class="options-panel__color-wrap">
-                    <label class="options-panel__checkbox">
-                        <input type="checkbox" id="bgColorEnabled"> <span id="bgModeLabel">Solid</span>
-                    </label>
-                    <input type="color" class="options-panel__color-input" id="bgColor" value="#FFFFFF" disabled>
-                    <input type="color" class="options-panel__color-input" id="bgColor2" value="#6366f1" disabled style="display:none">
-                    <button class="toggle-link" id="bgGradientToggle" style="display:none">Gradient</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Generate button -->
-    <div class="generate-wrap entrance entrance-4">
+    <div class="generate-wrap">
         <button class="generate-btn" id="generateBtn" disabled>Generate Icons</button>
     </div>
 
