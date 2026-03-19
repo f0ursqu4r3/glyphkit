@@ -459,8 +459,8 @@
             var grid = card.querySelector('.icon-grid');
             // Sort: images first (by size descending), then non-images
             var sortedFiles = pData.files.slice().sort(function (a, b) {
-                var aImg = /\.(png|ico|icns)$/i.test(a.name) ? 1 : 0;
-                var bImg = /\.(png|ico|icns)$/i.test(b.name) ? 1 : 0;
+                var aImg = /\.(png|ico)$/i.test(a.name) ? 1 : 0;
+                var bImg = /\.(png|ico)$/i.test(b.name) ? 1 : 0;
                 if (aImg !== bImg) return bImg - aImg;
                 return b.size - a.size;
             });
@@ -472,7 +472,7 @@
                 var thumb = document.createElement('div');
                 thumb.className = 'icon-grid__thumb';
 
-                var isImage = /\.(png|ico|icns)$/i.test(file.name);
+                var isImage = /\.(png|ico)$/i.test(file.name);
                 if (isImage) {
                     item.classList.add('icon-grid__item--clickable');
                     var img = document.createElement('img');
