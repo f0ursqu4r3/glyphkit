@@ -1,0 +1,218 @@
+"""CLI entrypoint for glyphkit."""
+
+from __future__ import annotations
+
+import argparse
+import glob as glob_module
+import pathlib
+import sys
+
+from glyphkit.core import GlyphkitError, load_and_validate_image
+from glyphkit.platforms import PLATFORM_REGISTRY, VALID_PLATFORMS
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        prog="glyphkit",
+        description="Universal app icon generator",
+    )
+    parser.add_argument("--source", nargs="+", help="Path(s) to source image(s) — supports globs")
+    parser.add_argument(
+        "--platforms", help="Comma-separated platforms: " + ", ".join(VALID_PLATFORMS)
+    )
+    parser.add_argument(
+        "--output-dir", default="./glyphkit-output", help="Output directory"
+    )
+    parser.add_argument(
+        "--android-bg", default="#FFFFFF", help="Android adaptive icon background color"
+    )
+    parser.add_argument("--padding", type=int, default=0, help="Padding percentage (0-50)")
+    parser.add_argument("--bg-color", default="", help="Background fill color (hex, or hex,hex for gradient)")
+    parser.add_argument("--bg-gradient-type", default="linear", choices=["linear", "radial"], help="Gradient type")
+    parser.add_argument("--bg-gradient-dir", default="to-br", choices=["to-right", "to-br", "to-bottom", "to-bl"], help="Gradient direction")
+    parser.add_argument(
+        "--no-prompt", action="store_true", help="Skip interactive prompts"
+    )
+    parser.add_argument(
+        "--watch", action="store_true", help="Watch source file and re-generate on change"
+    )
+    parser.add_argument("--ui", action="store_true", help="Launch web UI")
+    parser.add_argument("--copy-path", action="store_true", help="Copy output path to clipboard after generation")
+    return parser.parse_args(argv)
+
+
+def run(
+    source: pathlib.Path,
+    platforms: list[str],
+    output_dir: pathlib.Path,
+    options: dict,
+) -> None:
+    """Validate inputs and dispatch to platform generators."""
+    # Validate platforms
+    invalid = [p for p in platforms if p not in PLATFORM_REGISTRY]
+    if invalid:
+        raise GlyphkitError(
+            f"Invalid platform(s): {', '.join(invalid)}. "
+            f"Valid platforms: {', '.join(VALID_PLATFORMS)}"
+        )
+
+    from glyphkit.core import apply_background, apply_padding
+
+    img = load_and_validate_image(source)
+
+    padding = options.get("padding", 0)
+    if padding:
+        img = apply_padding(img, padding)
+
+    bg_color = options.get("bg_color", "")
+    if bg_color:
+        img = apply_background(
+            img, bg_color,
+            gradient_type=options.get("bg_gradient_type", "linear"),
+            gradient_dir=options.get("bg_gradient_dir", "to-br"),
+        )
+
+    total_files = 0
+    for platform_name in platforms:
+        print(f"Generating {platform_name} icons...")
+        platform_dir = output_dir / platform_name
+        generator = PLATFORM_REGISTRY[platform_name]
+        files = generator(img, platform_dir, options)
+        print(f"  {platform_name}: {len(files)} files created")
+        total_files += len(files)
+
+    print(f"\n{'─' * 40}")
+    print(f"  {total_files} files → {output_dir}")
+
+
+def _interactive_prompts() -> tuple[pathlib.Path, list[str], dict]:
+    """Run interactive questionary prompts."""
+    import questionary
+
+    platforms = questionary.checkbox(
+        "Select target platforms:",
+        choices=VALID_PLATFORMS,
+    ).ask()
+    if not platforms:
+        print("No platforms selected.")
+        sys.exit(0)
+
+    source_str = questionary.path("Source image path:").ask()
+    if not source_str:
+        print("No source image provided.")
+        sys.exit(1)
+
+    options: dict = {"padding": 0, "bg_color": ""}
+    if "android" in platforms:
+        bg = questionary.text(
+            "Android background color (hex):",
+            default="#FFFFFF",
+        ).ask()
+        options["android_bg"] = bg or "#FFFFFF"
+
+    return pathlib.Path(source_str), platforms, options
+
+
+def _copy_to_clipboard(text: str) -> None:
+    """Copy text to system clipboard."""
+    import subprocess
+    try:
+        if sys.platform == "darwin":
+            subprocess.run(["pbcopy"], input=text.encode(), check=True)
+        elif sys.platform == "linux":
+            subprocess.run(["xclip", "-selection", "clipboard"], input=text.encode(), check=True)
+        elif sys.platform == "win32":
+            subprocess.run(["clip"], input=text.encode(), check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass  # Silently fail if clipboard tool not available
+
+
+def main() -> None:
+    """Main entrypoint."""
+    args = parse_args()
+
+    if args.ui:
+        try:
+            from glyphkit.web.server import start_server
+        except ImportError:
+            print(
+                "Error: Web UI requires extra dependencies. "
+                "Install with: uv pip install -e '.[ui]'",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        start_server()
+        return
+
+    from glyphkit.config import get_option, load_config
+
+    config = load_config()
+
+    if args.no_prompt:
+        if not args.source or not args.platforms:
+            print(
+                "Error: --source and --platforms required with --no-prompt",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        # Expand globs for each source pattern provided
+        sources: list[pathlib.Path] = []
+        for pattern in args.source:
+            expanded = glob_module.glob(pattern)
+            if expanded:
+                sources.extend(pathlib.Path(p) for p in expanded)
+            else:
+                sources.append(pathlib.Path(pattern))  # Will fail with "not found" later
+        platforms = [p.strip() for p in args.platforms.split(",")]
+        options = {
+            "android_bg": get_option(config, "android_bg", args.android_bg, "#FFFFFF"),
+            "padding": get_option(config, "padding", args.padding, 0),
+            "bg_color": get_option(config, "bg_color", args.bg_color, ""),
+            "bg_gradient_type": get_option(config, "bg_gradient_type", args.bg_gradient_type, "linear"),
+            "bg_gradient_dir": get_option(config, "bg_gradient_dir", args.bg_gradient_dir, "to-br"),
+        }
+        if not args.platforms and "platforms" in config:
+            platforms = (
+                config["platforms"]
+                if isinstance(config["platforms"], list)
+                else [p.strip() for p in config["platforms"].split(",")]
+            )
+    else:
+        source_single, platforms, options = _interactive_prompts()
+        sources = [source_single]
+
+    output_dir_str = get_option(config, "output_dir", args.output_dir, "./glyphkit-output")
+    output_dir = pathlib.Path(output_dir_str)
+    if args.watch and not args.no_prompt:
+        print("Error: --watch requires --no-prompt", file=sys.stderr)
+        sys.exit(1)
+
+    if len(sources) == 1:
+        source = sources[0]
+        try:
+            run(source=source, platforms=platforms, output_dir=output_dir, options=options)
+        except GlyphkitError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+        if args.copy_path:
+            _copy_to_clipboard(str(output_dir.resolve()))
+            print(f"  Output path copied to clipboard")
+        print("Done!")
+
+        if args.watch and args.no_prompt:
+            from glyphkit.watch import watch_file
+            watch_file(source, lambda: run(source=source, platforms=platforms, output_dir=output_dir, options=options))
+    else:
+        for src in sources:
+            subdir = output_dir / src.stem
+            print(f"\n── {src.name} ──")
+            try:
+                run(source=src, platforms=platforms, output_dir=subdir, options=options)
+            except GlyphkitError as e:
+                print(f"  Skipped: {e}", file=sys.stderr)
+        print("Done!")
+
+
+if __name__ == "__main__":
+    main()

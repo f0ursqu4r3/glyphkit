@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+.venv/
+
+# MacOS
+.DS_Store
+
+# Output
+glyphkit-output/
+
+# Superpowers
+.superpowers/
+docs/superpowers/
