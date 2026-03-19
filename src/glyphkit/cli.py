@@ -62,12 +62,17 @@ def run(
     if bg_color:
         img = apply_background(img, bg_color)
 
+    total_files = 0
     for platform_name in platforms:
         print(f"Generating {platform_name} icons...")
         platform_dir = output_dir / platform_name
         generator = PLATFORM_REGISTRY[platform_name]
         files = generator(img, platform_dir, options)
         print(f"  {platform_name}: {len(files)} files created")
+        total_files += len(files)
+
+    print(f"\n{'─' * 40}")
+    print(f"  {total_files} files → {output_dir}")
 
 
 def _interactive_prompts() -> tuple[pathlib.Path, list[str], dict]:
@@ -115,6 +120,10 @@ def main() -> None:
         start_server()
         return
 
+    from glyphkit.config import get_option, load_config
+
+    config = load_config()
+
     if args.no_prompt:
         if not args.source or not args.platforms:
             print(
@@ -124,11 +133,22 @@ def main() -> None:
             sys.exit(1)
         source = pathlib.Path(args.source)
         platforms = [p.strip() for p in args.platforms.split(",")]
-        options = {"android_bg": args.android_bg, "padding": args.padding, "bg_color": args.bg_color}
+        options = {
+            "android_bg": get_option(config, "android_bg", args.android_bg, "#FFFFFF"),
+            "padding": get_option(config, "padding", args.padding, 0),
+            "bg_color": get_option(config, "bg_color", args.bg_color, ""),
+        }
+        if not args.platforms and "platforms" in config:
+            platforms = (
+                config["platforms"]
+                if isinstance(config["platforms"], list)
+                else [p.strip() for p in config["platforms"].split(",")]
+            )
     else:
         source, platforms, options = _interactive_prompts()
 
-    output_dir = pathlib.Path(args.output_dir)
+    output_dir_str = get_option(config, "output_dir", args.output_dir, "./glyphkit-output")
+    output_dir = pathlib.Path(output_dir_str)
     try:
         run(source=source, platforms=platforms, output_dir=output_dir, options=options)
     except GlyphkitError as e:
