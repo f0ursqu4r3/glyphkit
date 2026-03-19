@@ -253,25 +253,38 @@
     // ── Padded preview generation ──
     var paddedDataUrl = null;
 
-    function getPaddedDataUrl() {
+    function getProcessedDataUrl() {
+        if (!imageDataUrl) return imageDataUrl;
+
         var pct = parseInt(paddingSlider.value, 10);
-        if (!imageDataUrl || pct <= 0) return imageDataUrl;
+        var hasBg = bgColorEnabled.checked;
+        if (pct <= 0 && !hasBg) return imageDataUrl;
 
         var img = new window.Image();
         img.src = imageDataUrl;
-        var pad = Math.round(img.width * pct / 100);
+
+        // Calculate dimensions with padding
+        var pad = pct > 0 ? Math.round(img.width * pct / 100) : 0;
         var newSize = img.width + pad * 2;
+
         var canvas = document.createElement('canvas');
         canvas.width = newSize;
         canvas.height = newSize;
         var ctx = canvas.getContext('2d');
+
+        // Fill background if enabled
+        if (hasBg) {
+            ctx.fillStyle = bgColor.value;
+            ctx.fillRect(0, 0, newSize, newSize);
+        }
+
         ctx.drawImage(img, pad, pad, img.width, img.height);
         return canvas.toDataURL('image/png');
     }
 
     function updatePreviews() {
         if (!imageDataUrl) return;
-        paddedDataUrl = getPaddedDataUrl();
+        paddedDataUrl = getProcessedDataUrl();
         populatePreviewStrip();
         populateShapePreview();
     }
@@ -404,6 +417,11 @@
 
     bgColorEnabled.addEventListener('change', function () {
         bgColor.disabled = !bgColorEnabled.checked;
+        updatePreviews();
+    });
+
+    bgColor.addEventListener('input', function () {
+        updatePreviews();
     });
 
     // ── Generate ──
