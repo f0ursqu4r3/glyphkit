@@ -53,6 +53,13 @@
         </div>
     </div>
 
+    <!-- Shape preview -->
+    <div class="shape-preview glass" id="shapePreview">
+        <div class="shape-preview__inner">
+            <div class="shape-preview__row" id="shapeRow"></div>
+        </div>
+    </div>
+
     <!-- Platform selector -->
     <div class="section entrance entrance-3">
         <div class="section__header">
@@ -109,10 +116,12 @@
             <div class="options-panel__row">
                 <span class="options-panel__label">Background</span>
                 <div class="options-panel__color-wrap">
-                    <input type="color" class="options-panel__color-input" id="bgColor" value="#FFFFFF" disabled>
                     <label class="options-panel__checkbox">
-                        <input type="checkbox" id="bgColorEnabled"> Fill
+                        <input type="checkbox" id="bgColorEnabled"> <span id="bgModeLabel">Solid</span>
                     </label>
+                    <input type="color" class="options-panel__color-input" id="bgColor" value="#FFFFFF" disabled>
+                    <input type="color" class="options-panel__color-input" id="bgColor2" value="#6366f1" disabled style="display:none">
+                    <button class="toggle-link" id="bgGradientToggle" style="display:none">Gradient</button>
                 </div>
             </div>
         </div>

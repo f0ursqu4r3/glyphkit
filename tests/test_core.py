@@ -93,6 +93,16 @@ class TestApplyBackground:
         result = apply_background(source_image, "")
         assert result is source_image
 
+    def test_gradient_fill(self) -> None:
+        img = Image.new("RGBA", (100, 100), (0, 0, 0, 0))
+        result = apply_background(img, "#FF0000,#0000FF")
+        assert result.size == (100, 100)
+        # Top-left should be reddish, bottom-right should be bluish
+        tl = result.getpixel((0, 0))
+        br = result.getpixel((99, 99))
+        assert tl[0] > tl[2]  # More red than blue at top-left
+        assert br[2] > br[0]  # More blue than red at bottom-right
+
 
 class TestHasTransparency:
     def test_opaque_image(self) -> None:

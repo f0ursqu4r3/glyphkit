@@ -98,9 +98,49 @@ def apply_padding(source: Image.Image, padding_pct: int) -> Image.Image:
 
 
 def apply_background(source: Image.Image, bg_color: str) -> Image.Image:
-    """Fill transparent areas with a solid background color."""
+    """Fill transparent areas with a solid color or diagonal gradient.
+
+    bg_color can be a single hex color ("#FFFFFF") or two comma-separated
+    hex colors for a diagonal gradient ("#FF0000,#0000FF").
+    """
     if not bg_color:
         return source
-    bg = Image.new("RGBA", source.size, bg_color)
+
+    w, h = source.size
+
+    if "," in bg_color:
+        # Gradient: top-left to bottom-right
+        color1, color2 = [c.strip() for c in bg_color.split(",", 1)]
+        bg = _create_gradient(w, h, color1, color2)
+    else:
+        bg = Image.new("RGBA", (w, h), bg_color)
+
     bg.paste(source, mask=source.split()[3])
     return bg
+
+
+def _parse_color(hex_color: str) -> tuple[int, int, int]:
+    """Parse a hex color string to RGB tuple."""
+    hex_color = hex_color.lstrip("#")
+    return (
+        int(hex_color[0:2], 16),
+        int(hex_color[2:4], 16),
+        int(hex_color[4:6], 16),
+    )
+
+
+def _create_gradient(w: int, h: int, color1: str, color2: str) -> Image.Image:
+    """Create a diagonal gradient using Pillow's built-in interpolation."""
+    c1 = _parse_color(color1)
+    c2 = _parse_color(color2)
+
+    # Create a tiny 2x2 image with the gradient corners and scale up
+    # Top-left = color1, bottom-right = color2, other corners = blend
+    mid = tuple((a + b) // 2 for a, b in zip(c1, c2))
+    corner = Image.new("RGB", (2, 2))
+    corner.putpixel((0, 0), c1)
+    corner.putpixel((1, 0), mid)
+    corner.putpixel((0, 1), mid)
+    corner.putpixel((1, 1), c2)
+    gradient = corner.resize((w, h), Resampling.LANCZOS)
+    return gradient.convert("RGBA")
