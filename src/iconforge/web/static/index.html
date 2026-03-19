@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0f">
     <title>iconforge</title>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
@@ -291,9 +292,10 @@
         .preview-strip__row {
             display: flex;
             align-items: flex-end;
-            gap: 20px;
+            gap: var(--space-xl);
             overflow-x: auto;
-            padding-bottom: 8px;
+            padding-bottom: var(--space-sm);
+            -webkit-overflow-scrolling: touch;
         }
 
         .preview-strip__item {
@@ -368,12 +370,6 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-        }
-
-        @media (max-width: 600px) {
-            .platform-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
         }
 
         .platform-card {
@@ -571,7 +567,8 @@
         }
 
         .btn-outline {
-            padding: var(--space-sm) var(--space-lg);
+            padding: 10px var(--space-lg);
+            min-height: 40px;
             border-radius: var(--radius-btn);
             border: 1px solid var(--accent-outline);
             background: transparent;
@@ -953,18 +950,84 @@
             border-radius: 3px;
         }
 
-        /* ── Mobile tweaks ── */
-        @media (max-width: 500px) {
+        /* ── Tablet (<=768px) ── */
+        @media (max-width: 768px) {
+            .modal {
+                max-width: 95vw;
+            }
+            .modal__preview {
+                padding: var(--space-xl);
+            }
+            .toast-container {
+                left: 16px;
+                right: 16px;
+                top: 12px;
+                align-items: stretch;
+            }
+            .toast {
+                max-width: none;
+            }
+        }
+
+        /* ── Small screens (<=600px) ── */
+        @media (max-width: 600px) {
+            .platform-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
             .container {
-                padding: 24px 16px 60px;
+                padding: var(--space-2xl) var(--space-lg) 60px;
             }
             .drop-zone {
                 min-height: 220px;
-                padding: 40px 16px;
+                padding: var(--space-3xl) var(--space-lg);
             }
             .summary-bar {
                 flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-md);
+            }
+            .summary-bar__actions {
+                display: flex;
+                gap: var(--space-sm);
+            }
+            .btn-outline {
+                flex: 1;
+                justify-content: center;
+                min-height: 44px;
+            }
+            .icon-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            .modal__meta {
+                grid-template-columns: 1fr;
+            }
+            .modal__preview img {
+                max-height: 280px;
+            }
+            .preview-strip__row {
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+            }
+            .preview-strip__item {
+                scroll-snap-align: start;
+            }
+            .android-options__inner {
+                flex-direction: column;
                 align-items: flex-start;
+                gap: var(--space-md);
+            }
+        }
+
+        /* ── Narrow phones (<=380px) ── */
+        @media (max-width: 380px) {
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .icon-grid {
+                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
             }
         }
     </style>
