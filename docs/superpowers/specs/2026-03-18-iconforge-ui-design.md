@@ -31,13 +31,13 @@ The server manages output internally. Each generation creates a new temp directo
 
 ### API Endpoints
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `POST` | `/api/validate` | Upload image, returns dimensions, transparency info, warnings |
-| `POST` | `/api/generate` | Upload image + platform selections + options, triggers generation, returns file manifest |
-| `GET` | `/api/preview/{platform}/{path:path}` | Serve a generated icon for in-browser preview |
-| `GET` | `/api/download` | Zip and download the entire output directory |
-| `POST` | `/api/open-folder` | Open the output directory in the native file explorer |
+| Method | Path                                  | Purpose                                                                                  |
+| ------ | ------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `POST` | `/api/validate`                       | Upload image, returns dimensions, transparency info, warnings                            |
+| `POST` | `/api/generate`                       | Upload image + platform selections + options, triggers generation, returns file manifest |
+| `GET`  | `/api/preview/{platform}/{path:path}` | Serve a generated icon for in-browser preview                                            |
+| `GET`  | `/api/download`                       | Zip and download the entire output directory                                             |
+| `POST` | `/api/open-folder`                    | Open the output directory in the native file explorer                                    |
 
 ### Error responses
 
@@ -48,6 +48,7 @@ All endpoints return errors as JSON with an appropriate HTTP status:
 ```
 
 Status codes:
+
 - `400` — validation errors (non-PNG, non-square, missing fields)
 - `422` — malformed request (bad JSON in platforms field)
 - `413` — upload too large (max 50MB)
@@ -58,6 +59,7 @@ Status codes:
 Multipart form upload with field `image` (PNG file).
 
 Response:
+
 ```json
 {
   "width": 1024,
@@ -71,11 +73,13 @@ Response:
 ### `POST /api/generate` request
 
 Multipart form with fields:
+
 - `image` — PNG file
 - `platforms` — JSON array string, e.g. `["ios", "android", "web"]`
 - `android_bg` — hex color string, e.g. `"#FFFFFF"`
 
 Response:
+
 ```json
 {
   "platforms": {
@@ -146,7 +150,7 @@ Creates a zip of the entire output directory and streams it as a download.
 
 ## File Structure
 
-```
+```text
 src/iconforge/web/
   __init__.py
   app.py          # FastAPI app, API endpoints
@@ -164,6 +168,7 @@ parser.add_argument("--ui", action="store_true", help="Launch web UI")
 ```
 
 In `main()`:
+
 ```python
 if args.ui:
     from iconforge.web.server import start_server

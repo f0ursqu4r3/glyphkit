@@ -14,21 +14,22 @@
 
 ## File Map
 
-| File | Responsibility |
-|---|---|
-| `pyproject.toml` | Add `ui` optional dependency group |
-| `src/iconforge/cli.py` | Add `--ui` flag and server launch |
-| `src/iconforge/web/__init__.py` | Package init |
-| `src/iconforge/web/app.py` | FastAPI app, all API endpoints |
-| `src/iconforge/web/server.py` | Port selection, browser open, uvicorn launch |
-| `src/iconforge/web/static/index.html` | Single-page frontend — HTML + CSS + JS |
-| `tests/test_web_api.py` | Tests for all API endpoints |
+| File                                  | Responsibility                               |
+| ------------------------------------- | -------------------------------------------- |
+| `pyproject.toml`                      | Add `ui` optional dependency group           |
+| `src/iconforge/cli.py`                | Add `--ui` flag and server launch            |
+| `src/iconforge/web/__init__.py`       | Package init                                 |
+| `src/iconforge/web/app.py`            | FastAPI app, all API endpoints               |
+| `src/iconforge/web/server.py`         | Port selection, browser open, uvicorn launch |
+| `src/iconforge/web/static/index.html` | Single-page frontend — HTML + CSS + JS       |
+| `tests/test_web_api.py`               | Tests for all API endpoints                  |
 
 ---
 
 ## Task 1: Dependencies + Web Package Scaffold
 
 **Files:**
+
 - Modify: `pyproject.toml`
 - Create: `src/iconforge/web/__init__.py`
 - Create: `src/iconforge/web/app.py` (minimal)
@@ -38,6 +39,7 @@
 - [ ] **Step 1: Add UI optional dependencies to pyproject.toml**
 
 Add to `pyproject.toml` under `[project.optional-dependencies]`:
+
 ```toml
 ui = ["fastapi>=0.110", "uvicorn>=0.27"]
 ```
@@ -50,11 +52,13 @@ Expected: fastapi and uvicorn installed
 - [ ] **Step 3: Create web package**
 
 `src/iconforge/web/__init__.py`:
+
 ```python
 """iconforge web UI."""
 ```
 
 `src/iconforge/web/app.py`:
+
 ```python
 """FastAPI application for iconforge web UI."""
 
@@ -279,6 +283,7 @@ app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 ```
 
 `src/iconforge/web/server.py`:
+
 ```python
 """Server startup for iconforge web UI."""
 
@@ -320,11 +325,13 @@ def start_server() -> None:
 Modify `src/iconforge/cli.py` — add argument and handler:
 
 Add to `parse_args()`:
+
 ```python
 parser.add_argument("--ui", action="store_true", help="Launch web UI")
 ```
 
 Add at the start of `main()`, before `if args.no_prompt:`:
+
 ```python
 if args.ui:
     try:
@@ -343,6 +350,7 @@ if args.ui:
 - [ ] **Step 5: Create a placeholder index.html**
 
 `src/iconforge/web/static/index.html`:
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -375,11 +383,13 @@ git commit -m "feat: web UI scaffold with FastAPI, all API endpoints, --ui flag"
 ## Task 2: API Endpoint Tests (TDD)
 
 **Files:**
+
 - Create: `tests/test_web_api.py`
 
 - [ ] **Step 1: Write API tests**
 
 `tests/test_web_api.py`:
+
 ```python
 """Tests for iconforge web API endpoints."""
 
@@ -580,6 +590,7 @@ git commit -m "test: web API endpoint tests"
 ## Task 3: Frontend — HTML Structure + CSS Theme
 
 **Files:**
+
 - Modify: `src/iconforge/web/static/index.html`
 
 This is the big task — the entire single-page frontend. Due to its size, this task focuses on the HTML structure and CSS only. JS interactivity comes in Task 4.
@@ -598,6 +609,7 @@ Replace `src/iconforge/web/static/index.html` with the full page. The HTML conta
 8. Results section (hidden initially)
 
 All CSS is inline in a `<style>` tag. The theme uses:
+
 - `#0a0a0f` base background
 - Frosted glass panels: `rgba(255,255,255,0.03)` bg + `backdrop-filter: blur(20px)`
 - `#6366f1` → `#8b5cf6` accent gradient
@@ -613,6 +625,7 @@ The JS section is a placeholder `<script>` tag with `// JS in Task 4` comment.
 **NOTE TO IMPLEMENTER:** This HTML file will be large (~400-600 lines). That is expected for a single-page app with inline CSS. Focus on getting the visual design right — the dark glassy aesthetic, the layout, the micro-interactions via CSS. Use the spec's theme section as the exact reference. The JS interactivity will be added in Task 4.
 
 Key CSS details:
+
 - Drop zone: `min-height: 300px`, dashed `2px` border, `border-radius: 16px`, transitions to accent glow on `.dragover` class
 - Platform cards: CSS grid `grid-template-columns: repeat(3, 1fr)` at desktop, `repeat(2, 1fr)` at mobile. Each card is a glass panel with emoji icon, name, description. `.selected` class adds accent border + subtle box-shadow glow
 - Generate button: `height: 48px`, full-width, gradient background, `border-radius: 8px`, `transform: scale(1.01)` on hover. `.disabled` class grays it out. `.loading` class shows a pulse animation
@@ -637,6 +650,7 @@ git commit -m "feat: web UI frontend — HTML structure and dark glassy CSS them
 ## Task 4: Frontend — JavaScript Interactivity
 
 **Files:**
+
 - Modify: `src/iconforge/web/static/index.html` (replace JS placeholder)
 
 - [ ] **Step 1: Implement all JavaScript**
@@ -644,6 +658,7 @@ git commit -m "feat: web UI frontend — HTML structure and dark glassy CSS them
 Replace the `// JS in Task 4` placeholder in `index.html` with the full interactivity. The JS handles:
 
 **State:**
+
 ```javascript
 let selectedPlatforms = new Set();
 let imageFile = null;
@@ -651,6 +666,7 @@ let generationResult = null;
 ```
 
 **Drop zone:**
+
 - `dragover`/`dragleave`/`drop` events on the drop zone element
 - Also a hidden `<input type="file" accept=".png">` triggered by click on the drop zone
 - On file drop/select: validate via `POST /api/validate`, show image preview + metadata
@@ -660,22 +676,26 @@ let generationResult = null;
 - Show live preview strip: create `<img>` elements at sizes 16, 32, 64, 128, 256, 512 using the same data URL, CSS-sized
 
 **Platform selector:**
+
 - Click handler on each platform card toggles `.selected` class and updates `selectedPlatforms` set
 - "Select All / Deselect All" link toggles all
 - When Android is toggled, show/hide the options panel with a CSS transition
 
 **Generate button:**
+
 - Enabled only when `imageFile !== null && selectedPlatforms.size > 0`
 - On click: `POST /api/generate` with FormData (image file, platforms JSON, android_bg)
 - During generation: button shows "Generating..." with loading animation
 - On success: populate results section and show it with slide-down animation
 
 **Results section:**
+
 - Summary bar: total file count across all platforms, "Download ZIP" link (`/api/download`), "Open Folder" button (`POST /api/open-folder`)
 - Platform cards: render one per platform from response. Click to expand/collapse
 - Expanded view: render icon grid. Each icon is an `<img>` with `src` set to the `preview_url` from the response. Display at actual size capped at 128px. Show pixel dimensions label below each
 
 **Error handling:**
+
 - API errors show a toast notification (absolute positioned, top-right, auto-dismiss after 5s)
 - Network errors show a generic "Connection error" toast
 
@@ -683,6 +703,7 @@ let generationResult = null;
 
 Run: `uv run iconforge --ui`
 Test flow:
+
 1. Drag a PNG onto the drop zone → should show preview + metadata
 2. Select platforms → cards highlight
 3. Click Generate → should show loading, then results
@@ -702,6 +723,7 @@ git commit -m "feat: web UI JavaScript — drag-and-drop, generation, results di
 ## Task 5: Polish + Integration Test
 
 **Files:**
+
 - Modify: `src/iconforge/web/static/index.html` (polish pass)
 - Run: full test suite
 
@@ -713,6 +735,7 @@ Expected: all tests pass (existing 49 + new web API tests)
 - [ ] **Step 2: Visual polish pass**
 
 Run `uv run iconforge --ui` and check:
+
 - Drop zone glow animation on dragover
 - Platform card selection glow
 - Generate button hover effect

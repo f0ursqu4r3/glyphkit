@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 .venv/
 
+# MacOS
+.DS_Store
+
 # Output
 glyphkit-output/
 
