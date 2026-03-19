@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import glob as glob_module
 import pathlib
 import sys
 
@@ -16,7 +17,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         prog="glyphkit",
         description="Universal app icon generator",
     )
-    parser.add_argument("--source", help="Path to source image (PNG, JPEG, WebP, or SVG)")
+    parser.add_argument("--source", nargs="+", help="Path(s) to source image(s) — supports globs")
     parser.add_argument(
         "--platforms", help="Comma-separated platforms: " + ", ".join(VALID_PLATFORMS)
     )
@@ -134,7 +135,14 @@ def main() -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-        source = pathlib.Path(args.source)
+        # Expand globs for each source pattern provided
+        sources: list[pathlib.Path] = []
+        for pattern in args.source:
+            expanded = glob_module.glob(pattern)
+            if expanded:
+                sources.extend(pathlib.Path(p) for p in expanded)
+            else:
+                sources.append(pathlib.Path(pattern))  # Will fail with "not found" later
         platforms = [p.strip() for p in args.platforms.split(",")]
         options = {
             "android_bg": get_option(config, "android_bg", args.android_bg, "#FFFFFF"),
@@ -148,7 +156,8 @@ def main() -> None:
                 else [p.strip() for p in config["platforms"].split(",")]
             )
     else:
-        source, platforms, options = _interactive_prompts()
+        source_single, platforms, options = _interactive_prompts()
+        sources = [source_single]
 
     output_dir_str = get_option(config, "output_dir", args.output_dir, "./glyphkit-output")
     output_dir = pathlib.Path(output_dir_str)
@@ -156,16 +165,27 @@ def main() -> None:
         print("Error: --watch requires --no-prompt", file=sys.stderr)
         sys.exit(1)
 
-    try:
-        run(source=source, platforms=platforms, output_dir=output_dir, options=options)
-    except GlyphkitError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-    print("Done!")
+    if len(sources) == 1:
+        source = sources[0]
+        try:
+            run(source=source, platforms=platforms, output_dir=output_dir, options=options)
+        except GlyphkitError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+        print("Done!")
 
-    if args.watch and args.no_prompt:
-        from glyphkit.watch import watch_file
-        watch_file(source, lambda: run(source=source, platforms=platforms, output_dir=output_dir, options=options))
+        if args.watch and args.no_prompt:
+            from glyphkit.watch import watch_file
+            watch_file(source, lambda: run(source=source, platforms=platforms, output_dir=output_dir, options=options))
+    else:
+        for src in sources:
+            subdir = output_dir / src.stem
+            print(f"\n── {src.name} ──")
+            try:
+                run(source=src, platforms=platforms, output_dir=subdir, options=options)
+            except GlyphkitError as e:
+                print(f"  Skipped: {e}", file=sys.stderr)
+        print("Done!")
 
 
 if __name__ == "__main__":

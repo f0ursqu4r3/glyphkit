@@ -12,7 +12,7 @@ class TestParseArgs:
         args = parse_args(
             ["--source", "icon.png", "--platforms", "ios,web", "--no-prompt"]
         )
-        assert args.source == "icon.png"
+        assert args.source == ["icon.png"]
         assert args.platforms == "ios,web"
         assert args.no_prompt is True
 
@@ -70,3 +70,20 @@ class TestRun:
         )
         assert (tmp_path / "linux" / "app.desktop").exists()
         assert (tmp_path / "windows" / "app.ico").exists()
+
+
+class TestBatchMode:
+    def test_multiple_sources(self, square_1024: pathlib.Path, tmp_path: pathlib.Path) -> None:
+        """Batch mode creates subdirectories per source."""
+        # Create a second source
+        from PIL import Image
+        second = tmp_path / "second.png"
+        Image.new("RGBA", (1024, 1024), (0, 0, 255, 255)).save(second)
+
+        # Each source gets output_dir/stem/platform/...
+        output = tmp_path / "output"
+        run(source=square_1024, platforms=["linux"], output_dir=output / square_1024.stem, options={})
+        run(source=second, platforms=["linux"], output_dir=output / "second", options={})
+
+        assert (output / square_1024.stem / "linux" / "app.desktop").exists()
+        assert (output / "second" / "linux" / "app.desktop").exists()
