@@ -15,6 +15,8 @@
     const previewWarnings = document.getElementById('previewWarnings');
     const previewStrip = document.getElementById('previewStrip');
     const previewRow = document.getElementById('previewRow');
+    const shapePreview = document.getElementById('shapePreview');
+    const shapeRow = document.getElementById('shapeRow');
     const platformGrid = document.getElementById('platformGrid');
     const toggleAllBtn = document.getElementById('toggleAll');
     const androidOptions = document.getElementById('androidOptions');
@@ -38,6 +40,14 @@
     const modalClose = document.getElementById('modalClose');
 
     const PREVIEW_SIZES = [16, 32, 64, 128, 256, 512];
+    const PLATFORM_SHAPES = [
+        { id: 'ios', label: 'iOS', cssClass: 'ios' },
+        { id: 'android', label: 'Android', cssClass: 'android' },
+        { id: 'macos', label: 'macOS', cssClass: 'macos' },
+        { id: 'windows', label: 'Windows', cssClass: 'windows' },
+        { id: 'web', label: 'Web', cssClass: 'web' },
+        { id: 'linux', label: 'Linux', cssClass: 'linux' },
+    ];
     const PLATFORM_ICONS = {
         ios: 'smartphone',
         android: 'tablet-smartphone',
@@ -233,6 +243,7 @@
 
             // Populate live preview strip
             populatePreviewStrip();
+            populateShapePreview();
             updateGenerateBtn();
 
         } catch (err) {
@@ -268,6 +279,32 @@
             previewRow.appendChild(item);
         });
         previewStrip.classList.add('visible');
+    }
+
+    // ── Shape preview ──
+    function populateShapePreview() {
+        shapeRow.innerHTML = '';
+        PLATFORM_SHAPES.forEach(function (shape) {
+            var item = document.createElement('div');
+            item.className = 'shape-preview__item';
+
+            var mask = document.createElement('div');
+            mask.className = 'shape-preview__mask shape-preview__mask--' + shape.cssClass;
+
+            var img = document.createElement('img');
+            img.src = imageDataUrl;
+            img.alt = shape.label + ' shape';
+            mask.appendChild(img);
+
+            var label = document.createElement('span');
+            label.className = 'shape-preview__label';
+            label.textContent = shape.label;
+
+            item.appendChild(mask);
+            item.appendChild(label);
+            shapeRow.appendChild(item);
+        });
+        shapePreview.classList.add('visible');
     }
 
     // ── Platform selector ──
@@ -400,6 +437,7 @@
             '<div class="summary-bar__actions">' +
             '<a href="/api/download" download="glyphkit-output.zip" class="btn-outline"><i data-lucide="download" size="14"></i> Download ZIP</a>' +
             '<button class="btn-outline" id="openFolderBtn"><i data-lucide="folder-open" size="14"></i> Open Folder</button>' +
+            '<button class="btn-outline" id="copyPathBtn"><i data-lucide="clipboard-copy" size="14"></i> Copy Path</button>' +
             '</div>';
 
         document.getElementById('openFolderBtn').addEventListener('click', async function () {
@@ -413,6 +451,21 @@
                 }
             } catch (err) {
                 showToast('Can\u2019t reach the server. Is glyphkit still running?');
+            }
+        });
+
+        document.getElementById('copyPathBtn').addEventListener('click', async function () {
+            try {
+                var resp = await fetch('/api/copy-path', { method: 'POST' });
+                var data = await resp.json();
+                if (resp.ok && data.path) {
+                    await navigator.clipboard.writeText(data.path);
+                    showToast('Path copied to clipboard', 'success');
+                } else {
+                    showToast(data.detail || 'Could not save output');
+                }
+            } catch (err) {
+                showToast('Could not copy to clipboard');
             }
         });
 

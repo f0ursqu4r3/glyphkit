@@ -176,3 +176,19 @@ class TestOpenFolderEndpoint:
     def test_open_folder_without_generate(self, client: TestClient) -> None:
         resp = client.post("/api/open-folder")
         assert resp.status_code == 404
+
+
+class TestCopyPathEndpoint:
+    def test_copy_path_without_generate(self, client: TestClient) -> None:
+        resp = client.post("/api/copy-path")
+        assert resp.status_code == 404
+
+    def test_copy_path_after_generate(self, client: TestClient, png_bytes: bytes) -> None:
+        client.post(
+            "/api/generate",
+            files={"image": ("icon.png", png_bytes, "image/png")},
+            data={"platforms": '["linux"]', "android_bg": "#FFFFFF"},
+        )
+        resp = client.post("/api/copy-path")
+        assert resp.status_code == 200
+        assert "path" in resp.json()

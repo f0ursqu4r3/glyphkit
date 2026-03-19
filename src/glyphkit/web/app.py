@@ -217,4 +217,18 @@ async def open_folder() -> JSONResponse:
     return JSONResponse({"status": "ok", "path": str(persistent_dir)})
 
 
+@app.post("/api/copy-path")
+async def copy_path() -> JSONResponse:
+    """Copy output to persistent location and return path."""
+    if not _current_output_dir or not _current_output_dir.exists():
+        raise HTTPException(status_code=404, detail="No generation output available")
+
+    persistent_dir = pathlib.Path.cwd() / "glyphkit-output"
+    if persistent_dir.exists():
+        shutil.rmtree(persistent_dir)
+    shutil.copytree(_current_output_dir, persistent_dir)
+
+    return JSONResponse({"path": str(persistent_dir)})
+
+
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")

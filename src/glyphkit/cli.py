@@ -36,6 +36,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--watch", action="store_true", help="Watch source file and re-generate on change"
     )
     parser.add_argument("--ui", action="store_true", help="Launch web UI")
+    parser.add_argument("--copy-path", action="store_true", help="Copy output path to clipboard after generation")
     return parser.parse_args(argv)
 
 
@@ -107,6 +108,20 @@ def _interactive_prompts() -> tuple[pathlib.Path, list[str], dict]:
     return pathlib.Path(source_str), platforms, options
 
 
+def _copy_to_clipboard(text: str) -> None:
+    """Copy text to system clipboard."""
+    import subprocess
+    try:
+        if sys.platform == "darwin":
+            subprocess.run(["pbcopy"], input=text.encode(), check=True)
+        elif sys.platform == "linux":
+            subprocess.run(["xclip", "-selection", "clipboard"], input=text.encode(), check=True)
+        elif sys.platform == "win32":
+            subprocess.run(["clip"], input=text.encode(), check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass  # Silently fail if clipboard tool not available
+
+
 def main() -> None:
     """Main entrypoint."""
     args = parse_args()
@@ -172,6 +187,9 @@ def main() -> None:
         except GlyphkitError as e:
             print(f"Error: {e}", file=sys.stderr)
             sys.exit(1)
+        if args.copy_path:
+            _copy_to_clipboard(str(output_dir.resolve()))
+            print(f"  Output path copied to clipboard")
         print("Done!")
 
         if args.watch and args.no_prompt:
