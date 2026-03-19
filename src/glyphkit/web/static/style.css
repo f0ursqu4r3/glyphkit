@@ -634,6 +634,27 @@ body::before {
     border-radius: 3px;
 }
 
+.adjustments__swap {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition), background var(--transition), transform var(--transition);
+    display: flex;
+    align-items: center;
+}
+
+.adjustments__swap:hover {
+    color: var(--accent-1);
+    background: var(--glass-bg-hover);
+}
+
+.adjustments__swap:active {
+    transform: rotate(180deg);
+}
+
 .adjustments__hex {
     font-family: var(--font-mono);
     font-size: 12px;

@@ -26,6 +26,7 @@
     const paddingValue = document.getElementById('paddingValue');
     const bgColor = document.getElementById('bgColor');
     const bgColor2 = document.getElementById('bgColor2');
+    const bgSwapColors = document.getElementById('bgSwapColors');
     const bgModeControl = document.getElementById('bgModeControl');
     const gradTypeControl = document.getElementById('gradTypeControl');
     const gradDirControl = document.getElementById('gradDirControl');
@@ -450,6 +451,7 @@
 
         // Show/hide color pickers and gradient options
         bgColor.style.display = (mode === 'solid' || mode === 'gradient') ? '' : 'none';
+        bgSwapColors.style.display = mode === 'gradient' ? '' : 'none';
         bgColor2.style.display = mode === 'gradient' ? '' : 'none';
         gradientOptions.style.display = mode === 'gradient' ? 'flex' : 'none';
 
@@ -485,6 +487,13 @@
     });
 
     bgColor2.addEventListener('input', function () {
+        updatePreviews();
+    });
+
+    bgSwapColors.addEventListener('click', function () {
+        var tmp = bgColor.value;
+        bgColor.value = bgColor2.value;
+        bgColor2.value = tmp;
         updatePreviews();
     });
 
